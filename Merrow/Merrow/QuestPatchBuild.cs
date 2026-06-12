@@ -1514,6 +1514,12 @@ namespace Merrow {
                 File.AppendAllText(filePath + fileName + "_spoiler.txt", "Combat EXP display changed to numerical." + Environment.NewLine);
             }
 
+            void AppendSpoiler(string spoilerText)
+            {
+                Console.WriteLine($"[Spoiler]: {spoilerText}");
+                File.AppendAllText(filePath + fileName + "_spoiler.txt", spoilerText + Environment.NewLine);
+            }
+
             // Monster Shuffling
             //
             var shuffleTables = this.checkBoxShuffleEnemyTables.Checked;
@@ -1526,21 +1532,21 @@ namespace Merrow {
 
                 if (shuffleTables)
                 {
-                    mapData.RandomizeMonsterTables();
+                    mapData.RandomizeMonsterTables(AppendSpoiler);
                 }
 
                 if (shuffleComps)
                 {
-                    mapData.RandomizeAllMonsterPresets();
+                    mapData.RandomizeAllMonsterPresets(AppendSpoiler);
                 }
 
                 // Brannoch and Mammons World share pack definitions across their submaps
                 // so we need to clamp those to whatever the minimum amount of enemies
                 // happened to be across them.
                 //
-                mapData.FixBaragoonMoor();
-                mapData.FixBrannochCastle();
-                mapData.FixMammonsWorld();
+                mapData.FixBaragoonMoor(AppendSpoiler);
+                mapData.FixBrannochCastle(AppendSpoiler);
+                mapData.FixMammonsWorld(AppendSpoiler);
 
                 var writeOperations = mapData.GetMapWriteOperations();
 

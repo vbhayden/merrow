@@ -2758,12 +2758,25 @@ namespace Merrow {
             }),
 
 
-            new Util.EnemyTable(0xC9BE50, new Util.EnemyEntry[]
+            new Util.EnemyTable(0xCC4438, new Util.EnemyEntry[]
             {
-                new Util.EnemyEntry(0xC9BE50, "JUDGMENT"),
+                new Util.EnemyEntry(0xCC4438, "JUDGMENT"),
                 new Util.EnemyEntry(0xCC4470, "PALE RIDER"),
                 new Util.EnemyEntry(0xCC44A8, "PIN HEAD"),
                 new Util.EnemyEntry(0xCC44E0, "SPRIGGAN"),
+            }),
+
+
+            new Util.EnemyTable(0xD877F0, new Util.EnemyEntry[]
+            {
+                new Util.EnemyEntry(0xD877F0, "SOLVARING"),
+                new Util.EnemyEntry(0xD87828, "ZELSE"),
+                new Util.EnemyEntry(0xD87860, "NEPTY"),
+                new Util.EnemyEntry(0xD87898, "SHILF"),
+                new Util.EnemyEntry(0xD878D0, "FARGO"),
+                new Util.EnemyEntry(0xD87908, "GUILTY"),
+                new Util.EnemyEntry(0xD87940, "BEIGIS"),
+                new Util.EnemyEntry(0xD87978, "MAMMON"),
             })
         };
 

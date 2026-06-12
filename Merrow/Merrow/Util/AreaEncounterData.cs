@@ -59,13 +59,14 @@ namespace Merrow.Util
         }
 
         private List<int> tableIndices = new List<int>();
-        public void RandomizeMonsterTables()
+        public void RandomizeMonsterTables(Action<string> spoilerWriter = null)
         {
             tableIndices.Clear();
             for (int k=0; k<this.allData.Length; k++)
             {
                 var data = this.allData[k];
-                var tableIndex = data.mapData.tableIndex;
+                //var tableIndex = data.mapData.tableIndex;
+                var tableIndex = 6;
                 tableIndices.Add(tableIndex);
             }
             tableIndices.Shuffle();
@@ -76,6 +77,7 @@ namespace Merrow.Util
                 var tableIndex = tableIndices[k];
 
                 //Console.WriteLine("Randomizing Tables for: {0}", data.areaName);
+                spoilerWriter?.Invoke($"Randomizing Table:: {data.areaName} -> {tableIndex}");
 
                 var newTable = data.globalEnemyTables[tableIndex];
                 var newTableEnemyCount = newTable.enemies.Length;
@@ -97,13 +99,14 @@ namespace Merrow.Util
             this.isDirty = true;
         }
 
-        public void RandomizeAllMonsterPresets()
+        public void RandomizeAllMonsterPresets(Action<string> spoilerWriter = null)
         {
             for (int k = 0; k < this.allData.Length; k++)
             {
                 var data = this.allData[k];
 
                 //Console.WriteLine("Randomizing Monster Presets for: {0}", data.areaName);
+                spoilerWriter?.Invoke($"Randomizing Monster Presets for: {data.areaName}");
 
                 data.RandomizeMonsterPresets();
                 data.RandomizeEnemiesWithinPacks();
@@ -114,21 +117,21 @@ namespace Merrow.Util
             this.isDirty = true;
         }
 
-        public void FixBaragoonMoor()
+        public void FixBaragoonMoor(Action<string> spoilerWriter = null)
         {
-            //Console.WriteLine("Fixing Baragoon Moor Enemy Pack Indices ...");
+            spoilerWriter?.Invoke("Fixing Baragoon Moor Enemy Pack Indices ...");
             this.CapEnemyIndicesAmongGroup(BARAGOON_MOOR_INDEX_START, BARAGOON_MOOR_INDEX_LAST);
         }
 
-        public void FixBrannochCastle()
+        public void FixBrannochCastle(Action<string> spoilerWriter = null)
         {
-            //Console.WriteLine("Fixing Brannoch Castle Enemy Pack Indices ...");
+            spoilerWriter?.Invoke("Fixing Brannoch Castle Enemy Pack Indices ...");
             this.CapEnemyIndicesAmongGroup(BRANNOCH_INDEX_START, BRANNOCH_INDEX_LAST);
         }
 
-        public void FixMammonsWorld()
+        public void FixMammonsWorld(Action<string> spoilerWriter = null)
         {
-            //Console.WriteLine("Fixing Mammons World Enemy Pack  IDs ...");
+            spoilerWriter?.Invoke("Fixing Mammons World Enemy Pack  IDs ...");
             this.CapEnemyIndicesAmongGroup(MAMMON_INDEX_START, MAMMON_INDEX_LAST);
         }
         
