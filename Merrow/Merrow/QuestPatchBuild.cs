@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using Merrow.Util;
+using System;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Security;
-using System.Drawing;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Merrow {
     public partial class MerrowStandard {
@@ -145,11 +138,23 @@ namespace Merrow {
             //Spell Damage Rebalance
             int rebalanced = 0;
             if (rndSpellRebalanceToggle.Checked) { //rebalance
-                for (int i = 0; i < 18; i++) {
-                    string spelldmghex = library.damageRebalance[i * 3 + 2].ToString("X4");
-                    string oldspell = library.spells[library.damageRebalance[i * 3] * 4 + 3];
-                    string newspell = oldspell.Substring(0, 24) + spelldmghex + oldspell.Substring(28);
-                    library.spells[library.damageRebalance[i * 3] * 4 + 3] = newspell;
+                var balanceChanges = library.damageRebalance;
+                for (int i = 0; i < balanceChanges.Length; i++) {
+
+                    //string spelldmghex = library.damageRebalance[i * 3 + 2].ToString("X4");
+                    //string oldspell = library.spells[library.damageRebalance[i * 3] * 4 + 3];
+                    //string newspell = oldspell.Substring(0, 24) + spelldmghex + oldspell.Substring(28);
+                    //library.spells[library.damageRebalance[i * 3] * 4 + 3] = newspell;
+
+                    var change = balanceChanges[i];
+                    var spellData = library.spellData.GetSpell(change.SpellEnum);
+
+                    string rebalanchedDamageHex = change.DamageRebalanced.ToString("X4");
+                    string standardAttributes = spellData.GetAttributeData();
+
+                    string updatedAttributes = standardAttributes.Substring(0, 24) + rebalanchedDamageHex + standardAttributes.Substring(28);
+
+                    spellData.OverrideAttributeData(updatedAttributes);
                 }
                 File.AppendAllText(filePath + fileName + "_spoiler.txt", "Spells rebalanced." + Environment.NewLine);
                 rebalanced = 2;
@@ -165,13 +170,25 @@ namespace Merrow {
             //    rebalanced = 1;
             //}
             if (rebalanced != 0 && !rndSpellToggle.Checked) { //special writing of damage values direct
-                for (int i = 0; i < 18; i++) {
-                    string spelldmgaddr = (Convert.ToInt32(library.spells[library.damageRebalance[i * 3] * 4 + 2]) + 12).ToString("X6");
-                    string spelldmghex = library.damageRebalance[i * 3 + rebalanced].ToString("X4");
+
+                var balanceChanges = library.damageRebalance;
+
+                for (int i = 0; i < balanceChanges.Length; i++) {
+
+                    var change = balanceChanges[i];
+                    var spellData = library.spellData.GetSpell(change.SpellEnum);
+
+                    var spellDamageAddressDecimal = Convert.ToInt32(spellData.RomAddress, 16) + 12;
+                    var spellDamageAddressHex = spellDamageAddressDecimal.ToString("X6");
+                    var spellDamageUpdatedHex = change.DamageRebalanced.ToString("X4");
+
+                    //string spelldmgaddr = (Convert.ToInt32(library.spells[library.damageRebalance[i * 3] * 4 + 2]) + 12).ToString("X6");
+                    //string spelldmghex = library.damageRebalance[i * 3 + rebalanced].ToString("X4");
+
                     //Console.WriteLine(spelldmgaddr + " " + spelldmghex);
-                    patchstrings.Add(spelldmgaddr); //address advanced by 24
+                    patchstrings.Add(spellDamageAddressHex); //address advanced by 24
                     patchstrings.Add("0002");
-                    patchstrings.Add(spelldmghex);
+                    patchstrings.Add(spellDamageUpdatedHex);
                 }
             }
 
@@ -182,27 +199,65 @@ namespace Merrow {
 
             //Spell Shuffle
             if (rndSpellToggle.Checked) { 
-                for (int q = 0; q < playerspells; q++) {
+                for (int q = 0; q < playerSpellCount; q++) {
                     int tempq = 0;
 
                     if (rndSpellDropdown.SelectedIndex == 0) { tempq = shuffles[q]; } //set spell q to use spell shuffles[q] data
                     if (rndSpellDropdown.SelectedIndex != 0) { tempq = rndSpellDropdown.SelectedIndex - 1; }
 
-                    tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 3; //set rule address from dec version of hex, incrementing 3
-                    tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
-                    tempstr2 = library.spells[(tempq * 4) + 3].Substring(6, 2); //copy other spell rule data
-                    patchstrings.Add(tempstr1); //current spell rule address
-                    patchstrings.Add("0001"); //spell rule length, hex for 1
-                    patchstrings.Add(tempstr2); //copied spell rule data
+                    var defaultSpellData = library.spellData[q];
+                    var swappedSpellData = library.spellData[tempq];
 
-                    tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 11; //set remaining address from dec version of hex, incrementing 11
-                    tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
-                    tempstr2 = library.spells[(tempq * 4) + 3].Substring(22); //copy other remaining data
-                    patchstrings.Add(tempstr1); //current remaining address
-                    patchstrings.Add("0039"); //remaining length, hex for 57
-                    patchstrings.Add(tempstr2); //copied remaining data
+                    var defaultSpellAddress = Convert.ToInt32(defaultSpellData.RomAddress, 16);
+                    var defaultSpellAttributes = defaultSpellData.GetAttributeData();
 
-                    spoilerspells[q] = library.spells[(q * 4)] + " > " + library.spells[(tempq * 4)];
+                    var swappedSpellAddress = Convert.ToInt32(swappedSpellData.RomAddress, 16);
+                    var swappedSpellAttributes = swappedSpellData.GetAttributeData();
+
+                    // We want to replace everything but the level requirement and menu setup,
+                    // but since the Spell Rule is at offset 0x2, just before the menu data,
+                    // we need to grab that individually and then take the rest of the spell data
+                    // from 0xA onwards
+                    //
+
+                    // Set rule address from decimal version
+                    var defaultRuleAddress = defaultSpellAddress + 0x2;
+                    var defaultRuleAddressHex = defaultRuleAddress.ToString("X6");
+
+                    // We want the 0x2 index value at 0000____... so offset by 4
+                    var swappedSpellRule = swappedSpellAttributes.Substring(2 * 0x2, 4);
+
+                    var defaultRemainingAddress= defaultSpellAddress + 0xA;
+                    var defaultRemainingAddressHex = defaultRemainingAddress.ToString("X6");
+
+                    // Similarly, offset by 0xA to start 
+                    var swappedRemainingData = swappedSpellAttributes.Substring(2 * 0xA);
+
+                    patchstrings.Add(defaultRuleAddressHex);        //current spell rule address
+                    patchstrings.Add("0002");                       //spell rule length, hex for 2
+                    patchstrings.Add(swappedSpellRule);             //copied spell rule data
+
+                    patchstrings.Add(defaultRemainingAddressHex);   //current remaining address
+                    patchstrings.Add("003A");                       //remaining length, hex for 58
+                    patchstrings.Add(swappedRemainingData);         //copied remaining data
+
+                    spoilerspells[q] = $"{defaultSpellData.SpellEnum} > {swappedSpellData.SpellEnum}";
+
+                    //tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 3; //set rule address from dec version of hex, incrementing 3
+                    //tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
+                    //tempstr2 = library.spells[(tempq * 4) + 3].Substring(6, 2); //copy other spell rule data
+                    //patchstrings.Add(tempstr1); //current spell rule address
+                    //patchstrings.Add("0001"); //spell rule length, hex for 1
+                    //patchstrings.Add(tempstr2); //copied spell rule data
+
+                    //tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 11; //set remaining address from dec version of hex, incrementing 11
+                    //tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
+                    //tempstr2 = library.spells[(tempq * 4) + 3].Substring(22); //copy other remaining data
+                    //patchstrings.Add(tempstr1); //current remaining address
+                    //patchstrings.Add("0039"); //remaining length, hex for 57
+                    //patchstrings.Add(tempstr2); //copied remaining data
+
+                    //spoilerspells[q] = library.spells[(q * 4)] + " > " + library.spells[(tempq * 4)];
                 }
 
                 File.AppendAllText(filePath + fileName + "_spoiler.txt", "Spells overridden." + Environment.NewLine);
@@ -239,14 +294,14 @@ namespace Merrow {
                     }
 
                     //spell pointers
-                    for (int i = 0; i < playerspells; i++) {
+                    for (int i = 0; i < playerSpellCount; i++) {
                         patchstrings.Add(library.shuffleNames2[i, 5]); //pointer location
                         patchstrings.Add("0004"); //write four bytes
                         patchstrings.Add(library.shuffleNames2[i, 6]); //new pointer data
                     }
 
                     //spell names
-                    for (int i = 0; i < playerspells; i++) {
+                    for (int i = 0; i < playerSpellCount; i++) {
                         string temps = ToHex(hintnames[i]);
                         int zeroes = 32 - temps.Length;
                         patchstrings.Add(library.shuffleNames2[i, 4]);
@@ -363,8 +418,8 @@ namespace Merrow {
             if (rndSpellToggle.Checked && rndSpellOverridesToggle.Checked) {
                 fixcount = 0;
                 //check each spell combination in turn
-                for (int i = 0; i < playerspells; i++) {
-                    int spellfixnum = library.spellfixes[(i * playerspells) + shuffles[i]];
+                for (int i = 0; i < playerSpellCount; i++) {
+                    int spellfixnum = library.spellfixes[(i * playerSpellCount) + shuffles[i]];
                     string[] fixstrings = new string[2];
 
                     //check spellfix array index at [base X/modifier Y] for a positive number, which indicate a fix exists
@@ -716,11 +771,19 @@ namespace Merrow {
             //Maximum Accuracy
             if (rndAccuracyToggle.Checked) {
                 //spell accuracy: status 100
+                var spells = library.spellData;
+                var statusSpells = library.statusSpells;
+
                 if (rndAccuracyDropdown.SelectedIndex == 0) { 
-                    for (int i = 0; i < 17; i++) {
-                        string spellloc = library.spells[(library.statusspells[i] * 4) + 2];
-                        int temploc = Convert.ToInt32(spellloc) + 15;
-                        patchstrings.Add(Convert.ToString(temploc, 16));
+                    for (int i = 0; i < statusSpells.Length; i++) {
+
+                        var spellEnum = statusSpells[i];
+                        var spellData = spells.GetSpell(spellEnum);
+
+                        var spellAddress = spellData.RomAddress;
+                        int accuracyLocation = Convert.ToInt32(spellAddress) + 15;
+
+                        patchstrings.Add(Convert.ToString(accuracyLocation, 16));
                         patchstrings.Add("0001");
                         patchstrings.Add("64");
                     }
@@ -730,7 +793,7 @@ namespace Merrow {
 
                 //spell accuracy: all 100
                 if (rndAccuracyDropdown.SelectedIndex == 1) { 
-                    for (int z = spellstart + 15; z < ((spelloffset * playerspells) + spellstart); z += spelloffset) {
+                    for (int z = spellAddressStart + 15; z < ((spelloffset * playerSpellCount) + spellAddressStart); z += spelloffset) {
                         patchstrings.Add(Convert.ToString(z, 16));
                         patchstrings.Add("0001");
                         patchstrings.Add("64");
@@ -742,7 +805,7 @@ namespace Merrow {
 
             //Level 1 Unlock All
             if (rndLevelToggle.Checked) { 
-                for (int s = spellstart; s < ((spelloffset * playerspells) + spellstart); s += spelloffset) {
+                for (int s = spellAddressStart; s < ((spelloffset * playerSpellCount) + spellAddressStart); s += spelloffset) {
                     patchstrings.Add(Convert.ToString(s, 16));
                     patchstrings.Add("0002");
                     patchstrings.Add("0001");
@@ -753,7 +816,7 @@ namespace Merrow {
 
             //Soul Search
             if (rndSoulToggle.Checked) { 
-                for (int z = spellstart + 57; z < ((spelloffset * playerspells) + spellstart); z += spelloffset) {
+                for (int z = spellAddressStart + 57; z < ((spelloffset * playerSpellCount) + spellAddressStart); z += spelloffset) {
                     patchstrings.Add(Convert.ToString(z, 16));
                     patchstrings.Add("0001");
                     patchstrings.Add("01");
@@ -958,8 +1021,12 @@ namespace Merrow {
 
             //Level 2 Base Spells
             if (rndLevel2Toggle.Checked) {
+                var spellData = library.spellData;
                 for (int i = 0; i < 60; i += 15) {
-                    patchstrings.Add(library.spells[(i * 4) + 1]);
+
+                    var spell = spellData[i];
+
+                    patchstrings.Add(spell.RomAddress);
                     patchstrings.Add("0002");
                     patchstrings.Add("0002");
                 }

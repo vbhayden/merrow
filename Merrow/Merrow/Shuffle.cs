@@ -27,11 +27,11 @@ namespace Merrow {
             //SPELL SHUFFLING
             //'shuffles' is an array that will contain spells as indices, and modifiers as values. 
             //we start by filling it with -1 to denote unedited spells
-            for (int i = 0; i < playerspells; i++) { shuffles[i] = -1; }
+            for (int i = 0; i < playerSpellCount; i++) { shuffles[i] = -1; }
 
             //first, clear and fill the 'reorg' list in order, then shuffle it
             reorg.Clear();
-            for (int i = 0; i < playerspells; i++) { reorg.Add(i); }
+            for (int i = 0; i < playerSpellCount; i++) { reorg.Add(i); }
             int n = reorg.Count;
             while (n > 1) {
                 n--;
@@ -41,14 +41,14 @@ namespace Merrow {
                 reorg[n] = temp;
             }
 
-            for (int i = 0; i < playerspells; i++) {
+            for (int i = 0; i < playerSpellCount; i++) {
                 shuffles[i] = -1;
             }
 
             //crash protection disabled - uses specified spell for all spells
             //don't need to unlock crashlocked spells because i'm not even using it anyway
             if (!crashpro) {
-                for (int i = 0; i < playerspells; i++) {
+                for (int i = 0; i < playerSpellCount; i++) {
                     shuffles[i] = rndSpellDropdown.SelectedIndex - 1;
                 }
             }
@@ -60,14 +60,14 @@ namespace Merrow {
                 bool step = false;
 
                 //first, reset H1/W1 and AVA/MBR/WP3/LC to default crashlock lists, in case they've changed before.
-                for (int i = 0; i < playerspells; i++) {
-                    library.crashlock[(i * playerspells) + 32] = library.noearlyhealing[i];
-                    library.crashlock[(i * playerspells) + 19] = library.noearlyhealing[i];
+                for (int i = 0; i < playerSpellCount; i++) {
+                    library.crashlock[(i * playerSpellCount) + 32] = library.noearlyhealing[i];
+                    library.crashlock[(i * playerSpellCount) + 19] = library.noearlyhealing[i];
 
-                    library.crashlock[(i * playerspells) + 23] = library.defaultavalanche[i];
-                    library.crashlock[(i * playerspells) + 27] = library.defaultmagicbarrier[i];
-                    library.crashlock[(i * playerspells) + 34] = library.defaultwaterpillar3[i];
-                    library.crashlock[(i * playerspells) + 51] = library.defaultlargecutter[i];
+                    library.crashlock[(i * playerSpellCount) + 23] = library.defaultavalanche[i];
+                    library.crashlock[(i * playerSpellCount) + 27] = library.defaultmagicbarrier[i];
+                    library.crashlock[(i * playerSpellCount) + 34] = library.defaultwaterpillar3[i];
+                    library.crashlock[(i * playerSpellCount) + 51] = library.defaultlargecutter[i];
                 }
 
                 //Spell Combination Fixes: Unlocking fixed crashlocked spells
@@ -93,39 +93,39 @@ namespace Merrow {
 
                 //early healing: overwrite crashlock to give H1 only early slots
                 if (rndSpellToggle.Checked && rndEarlyHealingToggle.Checked) {
-                    for (int i = 0; i < playerspells; i++) {
-                        library.crashlock[(i * playerspells) + 32] = library.earlyhealingmodifier[i];
+                    for (int i = 0; i < playerSpellCount; i++) {
+                        library.crashlock[(i * playerSpellCount) + 32] = library.earlyhealingmodifier[i];
                         //if extra healing is on, make sure SS1 and VT are limited to early healing too
                         if (rndExtraHealingToggle.Checked) {
-                            //library.crashlock[(i * playerspells) + 33] = library.earlyhealingmodifier[i]; //SS1
-                            library.crashlock[(i * playerspells) + 19] = library.earlyhealingmodifier[i]; //W1
-                            library.crashlock[(i * playerspells) + 11] = library.earlyhealingmodifier[i]; //VT
+                            //library.crashlock[(i * playerSpellCount) + 33] = library.earlyhealingmodifier[i]; //SS1
+                            library.crashlock[(i * playerSpellCount) + 19] = library.earlyhealingmodifier[i]; //W1
+                            library.crashlock[(i * playerSpellCount) + 11] = library.earlyhealingmodifier[i]; //VT
                         }
                     }
                 }
 
                 //now lock H1/W1/VT into healelement[0-2], by locking them out of the other three elements.
                 //if Early/Extra are disabled, this has no negative effects, it just puts H1 into one element as it would anyway
-                for (int i = 0; i < playerspells; i++) {
+                for (int i = 0; i < playerSpellCount; i++) {
                     if (i < 15) { //fire
-                        if (healelements[0] != 0) { library.crashlock[(i * playerspells) + 32] = 32; }
-                        if (healelements[1] != 0 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 19] = 19; }
-                        if (healelements[2] != 0 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 11] = 11; }
+                        if (healelements[0] != 0) { library.crashlock[(i * playerSpellCount) + 32] = 32; }
+                        if (healelements[1] != 0 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 19] = 19; }
+                        if (healelements[2] != 0 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 11] = 11; }
                     }
                     if (i >= 15 && i < 30) { //earth
-                        if (healelements[0] != 1) { library.crashlock[(i * playerspells) + 32] = 32; }
-                        if (healelements[1] != 1 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 19] = 19; }
-                        if (healelements[2] != 1 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 11] = 11; }
+                        if (healelements[0] != 1) { library.crashlock[(i * playerSpellCount) + 32] = 32; }
+                        if (healelements[1] != 1 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 19] = 19; }
+                        if (healelements[2] != 1 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 11] = 11; }
                     }
                     if (i >= 30 && i < 45) { //water
-                        if (healelements[0] != 2) { library.crashlock[(i * playerspells) + 32] = 32; }
-                        if (healelements[1] != 2 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 19] = 19; }
-                        if (healelements[2] != 2 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 11] = 11; }
+                        if (healelements[0] != 2) { library.crashlock[(i * playerSpellCount) + 32] = 32; }
+                        if (healelements[1] != 2 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 19] = 19; }
+                        if (healelements[2] != 2 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 11] = 11; }
                     }
                     if (i >= 45) { //wind
-                        if (healelements[0] != 3) { library.crashlock[(i * playerspells) + 32] = 32; }
-                        if (healelements[1] != 3 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 19] = 19; }
-                        if (healelements[2] != 3 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerspells) + 11] = 11; }
+                        if (healelements[0] != 3) { library.crashlock[(i * playerSpellCount) + 32] = 32; }
+                        if (healelements[1] != 3 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 19] = 19; }
+                        if (healelements[2] != 3 && rndExtraHealingToggle.Checked) { library.crashlock[(i * playerSpellCount) + 11] = 11; }
                     }
                 }
 
@@ -136,30 +136,30 @@ namespace Merrow {
 
                 //element lockout functions the same as healing does above
                 if (rndSpellToggle.Checked && rndDistributeSpellsToggle.Checked) {
-                    for (int i = 0; i < playerspells; i++) {
+                    for (int i = 0; i < playerSpellCount; i++) {
                         if (i < 15) { //fire
-                            if (powerelements[0] != 0) { library.crashlock[(i * playerspells) + 23] = 23; }
-                            if (powerelements[1] != 0) { library.crashlock[(i * playerspells) + 27] = 27; }
-                            if (powerelements[2] != 0) { library.crashlock[(i * playerspells) + 34] = 34; }
-                            if (powerelements[3] != 0) { library.crashlock[(i * playerspells) + 51] = 51; }
+                            if (powerelements[0] != 0) { library.crashlock[(i * playerSpellCount) + 23] = 23; }
+                            if (powerelements[1] != 0) { library.crashlock[(i * playerSpellCount) + 27] = 27; }
+                            if (powerelements[2] != 0) { library.crashlock[(i * playerSpellCount) + 34] = 34; }
+                            if (powerelements[3] != 0) { library.crashlock[(i * playerSpellCount) + 51] = 51; }
                         }
                         if (i >= 15 && i < 30) { //earth
-                            if (powerelements[0] != 1) { library.crashlock[(i * playerspells) + 23] = 23; }
-                            if (powerelements[1] != 1) { library.crashlock[(i * playerspells) + 27] = 27; }
-                            if (powerelements[2] != 1) { library.crashlock[(i * playerspells) + 34] = 34; }
-                            if (powerelements[3] != 1) { library.crashlock[(i * playerspells) + 51] = 51; }
+                            if (powerelements[0] != 1) { library.crashlock[(i * playerSpellCount) + 23] = 23; }
+                            if (powerelements[1] != 1) { library.crashlock[(i * playerSpellCount) + 27] = 27; }
+                            if (powerelements[2] != 1) { library.crashlock[(i * playerSpellCount) + 34] = 34; }
+                            if (powerelements[3] != 1) { library.crashlock[(i * playerSpellCount) + 51] = 51; }
                         }
                         if (i >= 30 && i < 45) { //water
-                            if (powerelements[0] != 2) { library.crashlock[(i * playerspells) + 23] = 23; }
-                            if (powerelements[1] != 2) { library.crashlock[(i * playerspells) + 27] = 27; }
-                            if (powerelements[2] != 2) { library.crashlock[(i * playerspells) + 34] = 34; }
-                            if (powerelements[3] != 2) { library.crashlock[(i * playerspells) + 51] = 51; }
+                            if (powerelements[0] != 2) { library.crashlock[(i * playerSpellCount) + 23] = 23; }
+                            if (powerelements[1] != 2) { library.crashlock[(i * playerSpellCount) + 27] = 27; }
+                            if (powerelements[2] != 2) { library.crashlock[(i * playerSpellCount) + 34] = 34; }
+                            if (powerelements[3] != 2) { library.crashlock[(i * playerSpellCount) + 51] = 51; }
                         }
                         if (i >= 45) { //wind
-                            if (powerelements[0] != 3) { library.crashlock[(i * playerspells) + 23] = 23; }
-                            if (powerelements[1] != 3) { library.crashlock[(i * playerspells) + 27] = 27; }
-                            if (powerelements[2] != 3) { library.crashlock[(i * playerspells) + 34] = 34; }
-                            if (powerelements[3] != 3) { library.crashlock[(i * playerspells) + 51] = 51; }
+                            if (powerelements[0] != 3) { library.crashlock[(i * playerSpellCount) + 23] = 23; }
+                            if (powerelements[1] != 3) { library.crashlock[(i * playerSpellCount) + 27] = 27; }
+                            if (powerelements[2] != 3) { library.crashlock[(i * playerSpellCount) + 34] = 34; }
+                            if (powerelements[3] != 3) { library.crashlock[(i * playerSpellCount) + 51] = 51; }
                         }
                     }
                 }
@@ -169,11 +169,11 @@ namespace Merrow {
 
                 //random spell distribution after all rules are set
                 while (reorg.Count > 0) {
-                    for (int i = playerspells - 1; i > -1; i--) { //spell number. inverted order to tend to put powerful spells at the end, rather than the start
+                    for (int i = playerSpellCount - 1; i > -1; i--) { //spell number. inverted order to tend to put powerful spells at the end, rather than the start
                         step = false;
 
                         for (int j = 0; j < reorg.Count; j++) { //modifier number.
-                            if (!step && library.crashlock[(i * playerspells) + reorg[j]] == -1 && shuffles[i] == -1) {
+                            if (!step && library.crashlock[(i * playerSpellCount) + reorg[j]] == -1 && shuffles[i] == -1) {
                                 shuffles[i] = reorg[j];
                                 reorg.RemoveAt(j);
                                 step = true;
@@ -189,8 +189,8 @@ namespace Merrow {
                     if (reorg.Count > 0) {
 
                         reorg.Clear();
-                        for (int i = 0; i < playerspells; i++) { reorg.Add(i); }
-                        for (int i = 0; i < playerspells; i++) { shuffles[i] = -1; }
+                        for (int i = 0; i < playerSpellCount; i++) { reorg.Add(i); }
+                        for (int i = 0; i < playerSpellCount; i++) { shuffles[i] = -1; }
                         n = reorg.Count;
                         while (n > 1) {
                             n--;
@@ -213,8 +213,14 @@ namespace Merrow {
 
                 //item softlock protection
                 for (int i = 0; i < 6; i++) {
-                    newitemspells[i] = shuffles[spellitemID[i]];
-                    string rule = library.spells[(newitemspells[i] * 4) + 3].Substring(6, 2);
+
+                    var spellIndex = shuffles[spellitemID[i]];
+                    var spellData = library.spellData[spellIndex];
+                    var spellAttributes = spellData.GetAttributeData();
+
+                    string rule = spellAttributes.Substring(6, 2);
+
+                    newitemspells[i] = spellIndex;
 
                     if (rule == "12" || rule == "03") {
                         if (rule == "12") { //out of battle only (exit, return)
@@ -232,7 +238,7 @@ namespace Merrow {
 
             //SPELL NAME SHUFFLING (based on shuffles array and existing data)
 
-            for (int i = 0; i < playerspells; i++) {
+            for (int i = 0; i < playerSpellCount; i++) {
                 int fiftyfiftyfiftyfifty = SysRand.Next(4);
                 if (rndSpellNamesDropdown.SelectedIndex == 1) { fiftyfiftyfiftyfifty = 0; } //"Linear" option
                 switch (fiftyfiftyfiftyfifty) {
