@@ -218,6 +218,7 @@ namespace Merrow.Util
 
         public SpellData(SpellNameEnum spellEnum, string spellName, string romAddress, string spellAttributeData)
         {
+            this.SpellEnum = spellEnum;
             this.RomAddress = romAddress;
             this.DefaultSpellName = spellName;
             this.DefaultAttributeData = spellAttributeData;
