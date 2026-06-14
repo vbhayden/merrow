@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Security;
 using System.Drawing;
 using Merrow.Util;
+using System.Runtime.InteropServices;
 
 namespace Merrow {
     public partial class MerrowStandard : Form {
@@ -124,11 +125,21 @@ namespace Merrow {
         int[] rndflying = new int[74];
         int bossCount = 7; //V50: added for Beigis
 
+        private BossSpellReplacementWorkflow replacementWorkflow;
+
+        #region non-replacement
         //INITIALIZATION----------------------------------------------------------------
 
         public MerrowStandard() {
             //required Winforms initialization, do not edit or remove
             InitializeComponent();
+
+            this.replacementWorkflow = new BossSpellReplacementWorkflow();
+            this.replacementWorkflow.onPresetApplied += this.OnReplacementWorkflowPresetApplied;
+
+            this.PopulateLogicControls();
+
+            this.replacementWorkflow.ApplyPreset(SpellReplacementPreset.None);
 
             //initial randomization
             SysRand = new Random(); //reinitializing because otherwise seed always produces same value, possibly due to order error.
@@ -1816,6 +1827,263 @@ namespace Merrow {
             rndLostKeysDropdown.SelectedIndex = 1;
             tabsControl.SelectedIndex = 1;
             rndTabsControl.SelectedIndex = 3;
+        }
+
+        #endregion
+
+        private void comboBossSpellLogicWindRazor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.ZelseWindRazor);
+        }
+
+        private void comboBossSpellLogicWindZipper_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.ZelseWindZipper);
+        }
+
+        private void comboBossSpellLogicBubbleShot_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.NeptyBubbleShot);
+        }
+
+        private void comboBossSpellLogicDoveRazor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.ShilfDoveRazor);
+        }
+
+        private void comboBossSpellLavaBall_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.FargoLavaBall);
+        }
+
+        private void comboBossSpellLogicExplosion_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.FargoExplosion);
+        }
+
+        private void comboBossSpellLogicSpiritSword_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.BeigisSpiritSword);
+        }
+
+        private void comboBossSpellLogicFlameWaves_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.MammonFlameWaves);
+        }
+
+        private void comboBossSpellLogicFireArrows_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.ProcessLogicUpdate(sender as ComboBox, e, SpellNameEnum.MammonFireArrows);
+        }
+
+        private Dictionary<SpellNameEnum, ComboBox> logicControlMapping;
+
+        private Dictionary<SpellNameEnum, ComboBox> GetSpellLogicControlMapping()
+        {
+            if (this.logicControlMapping != null)
+                return this.logicControlMapping;
+
+            // Populate this
+            this.logicControlMapping = new Dictionary<SpellNameEnum, ComboBox>
+            {
+                { SpellNameEnum.ZelseWindRazor, this.comboBossSpellLogicWindRazor }, 
+                { SpellNameEnum.ZelseWindZipper, this.comboBossSpellLogicWindZipper}, 
+                { SpellNameEnum.NeptyBubbleShot, this.comboBossSpellLogicBubbleShot }, 
+                { SpellNameEnum.ShilfDoveRazor, this.comboBossSpellLogicDoveRazor}, 
+                { SpellNameEnum.FargoLavaBall, this.comboBossSpellLogicLavaBall }, 
+                { SpellNameEnum.FargoExplosion, this.comboBossSpellLogicExplosion }, 
+                { SpellNameEnum.BeigisSpiritSword, this.comboBossSpellLogicSpiritSword }, 
+                { SpellNameEnum.MammonFlameWaves, this.comboBossSpellLogicFlameWaves }, 
+                { SpellNameEnum.MammonFireArrows, this.comboBossSpellLogicFireArrows},
+            };
+
+            return this.logicControlMapping;
+        }
+
+
+        private List<RadioButton> bossSpellPresetCache;
+        private List<RadioButton> GetBossSpellPresetButtons()
+        {
+            if (this.bossSpellPresetCache != null)
+                return this.bossSpellPresetCache;
+
+            this.bossSpellPresetCache = new List<RadioButton>();
+            this.bossSpellPresetCache.Add(this.buttonBossSpellPresetNone);
+            this.bossSpellPresetCache.Add(this.buttonBossSpellPresetRecommended);
+            this.bossSpellPresetCache.Add(this.buttonBossSpellPresetReplaceSimilar);
+            this.bossSpellPresetCache.Add(this.buttonBossSpellPresetCustom);
+
+            return this.bossSpellPresetCache;
+        }
+
+
+        private List<ComboBox> logicComboBoxes;
+        private List<ComboBox> GetLogicComboBoxes()
+        {
+            if (this.logicComboBoxes != null)
+                return this.logicComboBoxes;
+
+            this.logicComboBoxes = new List<ComboBox>();
+            this.logicComboBoxes.Add(this.comboBossSpellLogicWindRazor);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicWindZipper);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicBubbleShot);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicDoveRazor);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicLavaBall);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicExplosion);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicSpiritSword);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicFlameWaves);
+            this.logicComboBoxes.Add(this.comboBossSpellLogicFireArrows);
+
+            return this.logicComboBoxes;
+        }
+ 
+        private void OnPresetSelected(RadioButton buttonClicked, SpellReplacementPreset correspondingPreset)
+        {
+            Console.WriteLine($"{buttonClicked} -> {correspondingPreset}");
+
+            var wasActivated = buttonClicked.Checked;
+            var presetButtons = this.GetBossSpellPresetButtons();
+
+            for (int k=0; k<presetButtons.Count; k++)
+            {
+                var presetButton = presetButtons[k];
+                if (presetButton == buttonClicked)
+                {
+                    presetButton.Checked = true;
+                }
+                else
+                    presetButton.Checked = false;
+            }
+
+            this.replacementWorkflow.ApplyPreset(correspondingPreset);
+        }
+
+        private void OnReplacementWorkflowPresetApplied(BossSpellReplacementWorkflow workflow, SpellReplacementPreset preset)
+        {
+            var entries = workflow.GetPlannedSpellReplacementData();
+            this.RedrawWithReplacementOperations(entries);
+        }
+
+        private void RedrawWithReplacementOperations(List<SpellReplacementEntry> replacementEntries)
+        {
+            var logicMapping = this.GetSpellLogicControlMapping();
+
+            for (int k=0; k<replacementEntries.Count; k++)
+            {
+                var entry = replacementEntries[k];
+                if (logicMapping.ContainsKey(entry.spellBeingAdded) == false)
+                    continue;
+                
+                var logicControl= logicMapping[entry.spellBeingAdded];
+                this.UpdateControlsForReplacementEntry(logicControl, entry);
+            }
+        }
+
+        private void PopulateLogicControls()
+        {
+            var logicControls = this.GetLogicComboBoxes();
+
+            for (int k=0; k<logicControls.Count; k++)
+            {
+                var control = logicControls[k];
+                var items = control.Items;
+
+                items.Clear();
+
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.None });
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomSpell });
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomBuff });
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomDebuff });
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomStatusSpell });
+
+                for (int s=0; s<this.playerSpellCount; s++)
+                {
+                    var spellName = (SpellNameEnum)s;
+                    var item = new SpellReplacementLogicItem
+                    {
+                        logic = SpellReplacementLogic.SpecificSpell,
+                        explicitReplacement = spellName
+                    };
+
+                    items.Add(item);
+                }
+
+                control.SelectedIndex = 0;
+            }
+        }
+
+        private void UpdateControlsForReplacementEntry(ComboBox control, SpellReplacementEntry entry)
+        {
+            if (entry.logic == SpellReplacementLogic.SpecificSpell)
+            {
+                var index = (int)SpellReplacementLogic.SpecificSpell + (int)entry.spellBeingReplaced;
+                control.SelectedIndex = index;
+            }
+            else
+            {
+                var index = (int)entry.logic;
+                control.SelectedIndex = index;
+            }
+        }
+
+
+        private void ProcessLogicUpdate(ComboBox comboBox, EventArgs e, SpellNameEnum spellName)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            var logicSelection = (SpellReplacementLogic) comboBox.SelectedIndex;
+        }
+
+        private void buttonBossSpellPresetNone_Click(object sender, EventArgs e)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            this.OnPresetSelected(this.buttonBossSpellPresetNone, SpellReplacementPreset.None);
+        }
+
+        private void buttonBossSpellPresetRecommended_Click(object sender, EventArgs e)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            this.OnPresetSelected(this.buttonBossSpellPresetRecommended, SpellReplacementPreset.Recommended);
+        }
+
+        private void buttonBossSpellPresetReplaceSimilar_Click(object sender, EventArgs e)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            this.OnPresetSelected(this.buttonBossSpellPresetReplaceSimilar, SpellReplacementPreset.ReplaceSimilar);
+        }
+
+        private void buttonBossSpellPresetCustom_Click(object sender, EventArgs e)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            this.OnPresetSelected(this.buttonBossSpellPresetCustom, SpellReplacementPreset.Custom);
+        }
+
+        private void ProcessBossSpellAdditions()
+        {
+
+        }
+    }
+
+    public class SpellReplacementLogicItem
+    {
+        public SpellReplacementLogic logic;
+        public SpellNameEnum explicitReplacement;
+
+        public override string ToString()
+        {
+            if (logic == SpellReplacementLogic.SpecificSpell)
+                return $"{this.explicitReplacement}";
+            else
+                return this.logic.ToString();
         }
     }
 }

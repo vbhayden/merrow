@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Xsl;
 
 namespace Merrow.Util
 {
@@ -96,11 +88,106 @@ namespace Merrow.Util
         BeigisSpiritSword = 72,
         BeigisGreenLaser = 73,
         MammonSolarBlast = 74,
-        MammonFireWave = 75,
-        MammonFlameArrows = 76
+        MammonFlameWaves = 75,
+        MammonFireArrows = 76,
+
+        //None = -1
     }
 
-    public class SpellDefinitions
+    public class SpellDamageRebalance
+    {
+        public SpellNameEnum SpellEnum { get; private set; }
+        public int DamageDefault { get; private set; }
+        public int DamageRebalanced { get; private set; }
+
+        public SpellDamageRebalance(SpellNameEnum spellName, int damageDefalt, int damageRebalanced)
+        {
+            this.SpellEnum = spellName;
+            this.DamageDefault = damageDefalt;
+            this.DamageRebalanced = damageRebalanced;
+        }
+    }
+
+
+    public class SpellData
+    {
+        public SpellNameEnum SpellEnum { get; private set; }
+
+        public string RomAddress { get; private set; }
+        public string DefaultSpellName { get; private set; }
+        public string DefaultAttributeData { get; private set; }
+
+        private bool hasOverrideName;
+        private string overridenName;
+
+        private bool hasOverrideData;
+        private string overridenAttributeData;
+
+        public SpellData(SpellNameEnum spellEnum, string spellName, string romAddress, string spellAttributeData)
+        {
+            this.SpellEnum = spellEnum;
+            this.RomAddress = romAddress;
+            this.DefaultSpellName = spellName;
+            this.DefaultAttributeData = spellAttributeData;
+        }
+
+        public string GetCurrentSpellName()
+        {
+            if (this.hasOverrideName)
+                return this.overridenName;
+            else
+                return this.DefaultSpellName;
+        }
+
+        public string GetAttributeData()
+        {
+            if (this.hasOverrideData)
+                return this.overridenAttributeData;
+            else
+                return this.DefaultAttributeData;
+        }
+
+        public void OverrideSpellName(string newName)
+        {
+            this.hasOverrideName = true;
+            this.overridenName = newName;
+        }
+
+        public void OverrideAttributeData(string attributeData)
+        {
+            this.hasOverrideData = true;
+            this.overridenAttributeData = attributeData;
+        }
+
+        public void ClearAttributeOverride()
+        {
+            this.hasOverrideData = false;
+            this.overridenAttributeData = null;
+        }
+
+        public void ClearNameOverride()
+        {
+            this.hasOverrideName = false;
+            this.overridenName = null;
+        }
+    }
+
+    public class SpellAnimationData
+    {
+        public SpellNameEnum SpellEnum { get; private set; }
+
+        public string RomAddress { get; private set; }
+        public string AnimationData { get; private set; }
+
+        public SpellAnimationData(SpellNameEnum spellEnum, string romAddress, string animationData)
+        {
+            SpellEnum = spellEnum;
+            RomAddress = romAddress;
+            AnimationData = animationData;
+        }
+    }
+
+    public static class SpellDefinitions
     {
         public static SpellData[] GetAllSpellData()
         {
@@ -180,89 +267,611 @@ namespace Merrow.Util
                 new SpellData(SpellNameEnum.BeigisSpiritSword,    "Ges_Cat",            "D4CD80",       "0000000D000300000000001401F4005A00090000000000000001000041400000000100000000000000000001000000040004000000000000000000000000000000000000"),
                 new SpellData(SpellNameEnum.BeigisGreenLaser,     "Ges_Beam",           "D4CDC4",       "00000005000300000000003C025800640000000000020001000100003F800000000100000000000100000000000000000000000000000000000000000000000000000000"),
                 new SpellData(SpellNameEnum.MammonSolarBlast,     "On_Light",           "D4CE08",       "0000000500030000000000280140005500090001000200010001000041F00000000100000000000000000000000000000000000000000000000000000000000000000000"),
-                new SpellData(SpellNameEnum.MammonFireWave,       "On_Wave",            "D4CE4C",       "00000005000300000000003C01E0006400000000000200000001000041C80000000300000000000000000002000000010001000000000000000000000000000000000000"),
-                new SpellData(SpellNameEnum.MammonFlameArrows,    "On_Needle",          "D4CE90",       "0000000D000300000000003C0032006400000000000000000000000040400000000800000000000900030000000400020000000000000000000000000000000000000000"),
+                new SpellData(SpellNameEnum.MammonFlameWaves,     "On_Wave",            "D4CE4C",       "00000005000300000000003C01E0006400000000000200000001000041C80000000300000000000000000002000000010001000000000000000000000000000000000000"),
+                new SpellData(SpellNameEnum.MammonFireArrows,     "On_Needle",          "D4CE90",       "0000000D000300000000003C0032006400000000000000000000000040400000000800000000000900030000000400020000000000000000000000000000000000000000"),
             };
-        }        
-    }
-    
-    
-    public class SpellDamageRebalance
-    {
-        public SpellNameEnum SpellEnum { get; private set; }
-        public int DamageDefault { get; private set; }
-        public int DamageRebalanced { get; private set; }
-
-        public SpellDamageRebalance(SpellNameEnum spellName, int damageDefalt, int damageRebalanced)
-        {
-            this.SpellEnum = spellName;
-            this.DamageDefault = damageDefalt;
-            this.DamageRebalanced = damageRebalanced;
-        }
-    }
-    
-
-    public class SpellData
-    {
-        public SpellNameEnum SpellEnum { get; private set; } 
-    
-        public string RomAddress { get; private set; }
-        public string DefaultSpellName { get; private set; }
-        public string DefaultAttributeData { get; private set; }
-
-        private bool hasOverrideName;
-        private string overridenName;
-
-        private bool hasOverrideData;
-        private string overridenAttributeData;
-
-        public SpellData(SpellNameEnum spellEnum, string spellName, string romAddress, string spellAttributeData)
-        {
-            this.SpellEnum = spellEnum;
-            this.RomAddress = romAddress;
-            this.DefaultSpellName = spellName;
-            this.DefaultAttributeData = spellAttributeData;
-        }
-        
-        public string GetCurrentSpellName()
-        {
-            if (this.hasOverrideName)
-                return this.overridenName;
-            else
-                return this.DefaultSpellName;
         }
 
-        public string GetAttributeData()
+        public static SpellAnimationData[] GetAllSpellAnimationData()
         {
-            if (this.hasOverrideData)
-                return this.overridenAttributeData;
-            else
-                return this.DefaultAttributeData;
+            return new SpellAnimationData[]
+            {
+                new SpellAnimationData(
+                    SpellNameEnum.FireBallLv1,
+                    "D4D338",
+                    "FFFF0000000000003F8000003F80000000190008000200003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000F00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FireBallLv2,
+                    "D4D380",
+                    "FFFF0000000000003F8000003F80000000190008000200003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000F00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.PowerStaffLv1,
+                    "D4D3C8",
+                    "FFFF0000000000003F8000003F80000000330007000200003FD9999A3F99999AFFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HomingArrowLv1,
+                    "D4D410",
+                    "FFFF0000000000003F8000003F800000001F0006000400004040000040400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HotSteamLv1,
+                    "D4D458",
+                    "0005000A000200003EB333333EB33333FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003C00020002000040000000400000000C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FireBallLv3,
+                    "D4D4A0",
+                    "FFFF0000000000003F8000003F80000000190008000200003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000F00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Compression,
+                    "D4D4E8",
+                    "0022000700020000410000004100000000412825000200003F8000003F800000FFFF0000000000003F8000003F800000000800070000000040000000400000003E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.PowerStaffLv2,
+                    "D4D530",
+                    "001E000700020000400CCCCD40400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FirePillar,
+                    "D4D578",
+                    "00200002000000004000000040000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C000D00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HomingArrowLv2,
+                    "D4D5C0",
+                    "FFFF0000000000003F8000003F800000001F0006000400003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FireBomb,
+                    "D4D608",
+                    "FFFF0000000000003F8000003F80000000210007000200003F8000003F800000001C0007000000003F8000003F800000FFFF0000000000003F8000003F8000000D000D00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.VampiresTouch,
+                    "D4D650",
+                    "002D000900000000408000004080000000343C060000000040C0000040C00000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MagmaBall,
+                    "D4D698",
+                    "00110007002900003F8000003F800000001B0107000600003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C001000FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Extinction,
+                    "D4D6E0",
+                    "002C0007000000004070000040700000003B3207000200004000000040000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002900FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HotSteamLv2,
+                    "D4D728",
+                    "0006000A000200003E8F5C293E8F5C29FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003C00020002000040000000400000000D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RockLv1,
+                    "D4D770",
+                    "000A000700A900003FC000003FC00000FFFF0000000000003F8000003F80000000050007000200004000000040000000FFFF0000000000003F8000003F800000FF00FF002C00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RockLv2,
+                    "D4D7B8",
+                    "000A000700A900003FC000003FC00000FFFF0000000000003F8000003F80000000050007000200004000000040000000FFFF0000000000003F8000003F800000FF00FF002C00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SpiritArmorLv1,
+                    "D4D800",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000230007000200003FD9999A3FD9999A3D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RollingRockLv1,
+                    "D4D848",
+                    "002E0007002900003F8000003F800000000F040D000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FF00FF00FF001000"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WeaknessLv1,
+                    "D4D890",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000240007000000003FD9999A3FB333333E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RockLv3,
+                    "D4D8D8",
+                    "000A000700A900003FC000003FC00000FFFF0000000000003F8000003F80000000050007000200004000000040000000FFFF0000000000003F8000003F800000FF00FF002C00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MagnetRock,
+                    "D4D920",
+                    "000B000700A800004000000040000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C000D00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SpiritArmorLv2,
+                    "D4D968",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000230007000200003FD9999A400000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Avalanche,
+                    "D4D9B0",
+                    "000A000700A900003F8000003F800000FFFF0000000000003F8000003F80000000050007000000004000000040000000FFFF0000000000003F8000003F800000FF002C001000FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Confusion,
+                    "D4D9F8",
+                    "0038000D000200003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WeaknessLv2,
+                    "D4DA40",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000240007000200003FD9999A3FB333333E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RockShower,
+                    "D4DA88",
+                    "FFFF0000000000003F8000003F800000000C0207009200004170000041700000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FF00FF00FF002900"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MagicBarrier,
+                    "D4DAD0",
+                    "0025000C00020000404000004040000000155A02000200004020000040400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RollingRockLv2,
+                    "D4DB18",
+                    "002E0007002900003F8000003F800000000F040D000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FF00FF00FF001000"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WeakenAll,
+                    "D4DB60",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000240007000200003FD9999A3FB333333E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WaterPillarLv1,
+                    "D4DBA8",
+                    "0014000700080000400000004000000000103219000000004066666640666666FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WaterPillarLv2,
+                    "D4DBF0",
+                    "0014000700080000400000004000000000103219000000004066666640666666FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HealingLv1,
+                    "D4DC38",
+                    "00000004000000003F8000003F80000000010424000200004000000040000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000B00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SoulSearcherLv1,
+                    "D4DC80",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002701FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WaterPillarLv3,
+                    "D4DCC8",
+                    "0014000700080000400000004000000000103219000000004066666640666666FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.IceWall,
+                    "D4DD10",
+                    "00390011000200003F3333333F333333FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003D00160000000040000000400000000C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.IceKnife,
+                    "D4DD58",
+                    "002F0016000800004020000040200000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF000000000000404000004040000038001500FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Exit,
+                    "D4DDA0",
+                    "00260007000200003FD9999A3F99999AFFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003B00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Escape,
+                    "D4DDE8",
+                    "0040001B000200004040000040400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003A00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Return,
+                    "D4DE30",
+                    "00270007000200003FD9999A3FD9999AFFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003B00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.HealingLv2,
+                    "D4DE78",
+                    "00000004000000003F8000003F80000000010424000000004000000040000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000B00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SoulSearcherLv2,
+                    "D4DEC0",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002701FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WalkingWater,
+                    "D4DF08",
+                    "FFFF0000000000003F8000003F80000000350207000800004040000040400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FF00FF00FF000C00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.DrainMagic,
+                    "D4DF50",
+                    "00280007000200004040000040400000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003C00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Invalidity,
+                    "D4DF98",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003000170002000040400000404000003B00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WindCutterLv1,
+                    "D4DFE0",
+                    "FFFF0000000000003F8000003F80000000320018000400003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001700FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WindCutterLv2,
+                    "D4E028",
+                    "FFFF0000000000003F8000003F80000000320018000400003F99999A3F99999AFFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001700FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RestrictionLv1,
+                    "D4E070",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000037001F000200003F8000003F800000FF002200FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.EvadeLv1,
+                    "D4E0B8",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000360013000200003FF333333FF333333D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SilenceLv1,
+                    "D4E100",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003A0007000200003F8000003F80000039002700FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WindCutterLv3,
+                    "D4E148",
+                    "FFFF0000000000003F8000003F80000000320018000400003FA666663FA66666FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001700FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.LargeCutter,
+                    "D4E190",
+                    "FFFF0000000000003F8000003F80000000320018000400003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.RestrictionLv2,
+                    "D4E1D8",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000037001F000200003F8000003F800000FF002200FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WindBomb,
+                    "D4E220",
+                    "003E0027000200003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002900FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.EvadeLv2,
+                    "D4E268",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F80000000290013000200003FE666663F8000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.Cyclone,
+                    "D4E2B0",
+                    "00310007000200003F8000003F80000000070407000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002A00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SlowEnemy,
+                    "D4E2F8",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000002A00070002000040400000404000003E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.WindWalk,
+                    "D4E340",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000002B001A000200003FE666663F0000003D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SilenceLv2,
+                    "D4E388",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003A0007000200003F8000003F80000039002700FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.UltimateWind,
+                    "D4E3D0",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000003F0028010000003F570A3D3F570A3D16001500FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SolvaringFireBlast,
+                    "D4E418",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000700FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.SolvaringEarthSpikes,
+                    "D4E460",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000D20FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.ZelseWindRazor,
+                    "D4E4A8",
+                    "004A0029008500003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001700FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.ZelseWindZipper,
+                    "D4E4F0",
+                    "FFFF0000000000003F8000003F800000004D010700A000003FC000003FC00000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003000FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.NeptyBubbleShot,
+                    "D4E538",
+                    "004E002B000300003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.NeptyBubbleShield,
+                    "D4E580",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002900FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FargoLavaBall,
+                    "D4E5C8",
+                    "FFFF0000000000003F8000003F80000000510007000200003E4CCCCD3E4CCCCDFFFF0000000000003F8000003F80000000520007000000003FC000003FC0000016000F00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.FargoExplosion,
+                    "D4E610",
+                    "00530007000A00003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003100FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.ShilfLaser,
+                    "D4E658",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001100FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.ShilfDoveRazor,
+                    "D4E6A0",
+                    "00570039008500003F3333333F333333FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003F00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.GuiltyGroundPound,
+                    "D4E6E8",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000D00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.GuiltySlash,
+                    "D4E730",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002E001500FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.BeigisSpiritSword,
+                    "D4E778",
+                    "005C0007000400003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.BeigisGreenLaser,
+                    "D4E7C0",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003100FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MammonSolarBlast,
+                    "D4E808",
+                    "FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000003A00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MammonFlameWaves,
+                    "D4E850",
+                    "FFFF0007000000003F8000003F80000000620007000600004020000040200000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000002E00FF00FF00FF00"),
+
+                new SpellAnimationData(
+                    SpellNameEnum.MammonFireArrows,
+                    "D4E898",
+                    "FFFF0000000000003F8000003F80000000630007000600004100000041000000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000000700FF00FF00FF00"),
+            };
         }
 
-        public void OverrideSpellName(string newName)
-        {
-            this.hasOverrideName = true;
-            this.overridenName = newName;
-        }
 
-        public void OverrideAttributeData(string attributeData)
+        //spell categories
+        // public int[] statusspells = { 6, 17, 19, 22, 24, 25, 29, 43, 44, 47, 48, 49, 52, 54, 56, 57, 58 };
+        public readonly static SpellNameEnum[] StatusSpells =
         {
-            this.hasOverrideData = true;
-            this.overridenAttributeData = attributeData;
-        }
-        
-        public void ClearAttributeOverride()
-        {
-            this.hasOverrideData = false;
-            this.overridenAttributeData = null;
-        }
+            /* 06 */ SpellNameEnum.Compression,
+            /* 17 */ SpellNameEnum.SpiritArmorLv1,
+            /* 19 */ SpellNameEnum.WeaknessLv1,
+            /* 22 */ SpellNameEnum.SpiritArmorLv2,
+            /* 24 */ SpellNameEnum.Confusion,
+            /* 25 */ SpellNameEnum.WeaknessLv2,
+            /* 29 */ SpellNameEnum.WeakenAll,
+            /* 43 */ SpellNameEnum.DrainMagic,
+            /* 44 */ SpellNameEnum.Invalidity,
+            /* 47 */ SpellNameEnum.RestrictionLv1,
+            /* 48 */ SpellNameEnum.EvadeLv1,
+            /* 49 */ SpellNameEnum.SilenceLv1,
+            /* 52 */ SpellNameEnum.RestrictionLv2,
+            /* 54 */ SpellNameEnum.EvadeLv2,
+            /* 56 */ SpellNameEnum.SlowEnemy,
+            /* 57 */ SpellNameEnum.WindWalk,
+            /* 58 */ SpellNameEnum.SilenceLv2
+        };
 
-        public void ClearNameOverride()
+        public readonly static SpellNameEnum[] DebuffSpells =
         {
-            this.hasOverrideName = false;
-            this.overridenName = null;
-        }
+            /* 06 */ SpellNameEnum.Compression,
+            /* 19 */ SpellNameEnum.WeaknessLv1,
+            /* 25 */ SpellNameEnum.WeaknessLv2,
+            /* 29 */ SpellNameEnum.WeakenAll,
+            /* 43 */ SpellNameEnum.DrainMagic,
+            /* 47 */ SpellNameEnum.RestrictionLv1,
+            /* 49 */ SpellNameEnum.SilenceLv1,
+            /* 52 */ SpellNameEnum.RestrictionLv2,
+            /* 56 */ SpellNameEnum.SlowEnemy,
+            /* 58 */ SpellNameEnum.SilenceLv2
+        };
+
+        public readonly static SpellNameEnum[] BuffSpells =
+        {
+            /* 17 */ SpellNameEnum.SpiritArmorLv1,
+            /* 22 */ SpellNameEnum.SpiritArmorLv2,
+            /* 24 */ SpellNameEnum.Confusion,
+            /* 44 */ SpellNameEnum.Invalidity,
+            /* 48 */ SpellNameEnum.EvadeLv1,
+            /* 54 */ SpellNameEnum.EvadeLv2,
+            /* 57 */ SpellNameEnum.WindWalk,
+        };
+
+        // public int[] offenseSpells = { 0, 1, 3, 4, 5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 20, 21, 23, 26, 28, 30, 31, 34, 35, 36, 42, 45, 46, 50, 51, 53, 55, 59 };
+        public readonly static SpellNameEnum[] OffenseSpells =
+        {
+            /* 00 */ SpellNameEnum.FireBallLv1,
+            /* 01 */ SpellNameEnum.FireBallLv2,
+            /* 03 */ SpellNameEnum.HomingArrowLv1,
+            /* 04 */ SpellNameEnum.HotSteamLv1,
+            /* 05 */ SpellNameEnum.FireBallLv3,
+            /* 08 */ SpellNameEnum.FirePillar,
+            /* 09 */ SpellNameEnum.HomingArrowLv2,
+            /* 10 */ SpellNameEnum.FireBomb,
+            /* 12 */ SpellNameEnum.MagmaBall,
+            /* 13 */ SpellNameEnum.Extinction,
+            /* 14 */ SpellNameEnum.HotSteamLv2,
+
+            /* 15 */ SpellNameEnum.RockLv1,
+            /* 16 */ SpellNameEnum.RockLv2,
+            /* 18 */ SpellNameEnum.RollingRockLv1,
+            /* 20 */ SpellNameEnum.RockLv3,
+            /* 21 */ SpellNameEnum.MagnetRock,
+            /* 23 */ SpellNameEnum.Avalanche,
+            /* 26 */ SpellNameEnum.RockShower,
+            /* 28 */ SpellNameEnum.RollingRockLv2,
+
+            /* 30 */ SpellNameEnum.WaterPillarLv1,
+            /* 31 */ SpellNameEnum.WaterPillarLv2,
+            /* 34 */ SpellNameEnum.WaterPillarLv3,
+            /* 35 */ SpellNameEnum.IceWall,
+            /* 36 */ SpellNameEnum.IceKnife,
+            /* 42 */ SpellNameEnum.WalkingWater,
+
+            /* 45 */ SpellNameEnum.WindCutterLv1,
+            /* 46 */ SpellNameEnum.WindCutterLv2,
+            /* 50 */ SpellNameEnum.WindCutterLv3,
+            /* 51 */ SpellNameEnum.LargeCutter,
+            /* 53 */ SpellNameEnum.WindBomb,
+            /* 55 */ SpellNameEnum.Cyclone,
+            /* 59 */ SpellNameEnum.UltimateWind,
+        };
+
+        // public int[] brianSpells = { 2, 6, 7, 11, 24, 29, 33, 37, 39, 41 };
+        public readonly static SpellNameEnum[] BrianOnlySpells =
+        {
+            /* 02 */ SpellNameEnum.PowerStaffLv1,
+            /* 06 */ SpellNameEnum.Compression,
+            /* 07 */ SpellNameEnum.PowerStaffLv2,
+            /* 11 */ SpellNameEnum.VampiresTouch,
+            /* 24 */ SpellNameEnum.Confusion,
+            /* 29 */ SpellNameEnum.WeakenAll,
+            /* 33 */ SpellNameEnum.SoulSearcherLv1,
+            /* 37 */ SpellNameEnum.Exit,
+            /* 39 */ SpellNameEnum.Return,
+            /* 41 */ SpellNameEnum.SoulSearcherLv2,
+        };
+
+        public readonly static SpellNameEnum[] AllBaseSpells =
+        {
+            SpellNameEnum.FireBallLv1,
+            SpellNameEnum.FireBallLv2,
+            SpellNameEnum.PowerStaffLv1,
+            SpellNameEnum.HomingArrowLv1,
+            SpellNameEnum.HotSteamLv1,
+            SpellNameEnum.FireBallLv3,
+            SpellNameEnum.Compression,
+            SpellNameEnum.PowerStaffLv2,
+            SpellNameEnum.FirePillar,
+            SpellNameEnum.HomingArrowLv2,
+            SpellNameEnum.FireBomb,
+            SpellNameEnum.VampiresTouch,
+            SpellNameEnum.MagmaBall,
+            SpellNameEnum.Extinction,
+            SpellNameEnum.HotSteamLv2,
+            SpellNameEnum.RockLv1,
+            SpellNameEnum.RockLv2,
+            SpellNameEnum.SpiritArmorLv1,
+            SpellNameEnum.RollingRockLv1,
+            SpellNameEnum.WeaknessLv1,
+            SpellNameEnum.RockLv3,
+            SpellNameEnum.MagnetRock,
+            SpellNameEnum.SpiritArmorLv2,
+            SpellNameEnum.Avalanche,
+            SpellNameEnum.Confusion,
+            SpellNameEnum.WeaknessLv2,
+            SpellNameEnum.RockShower,
+            SpellNameEnum.MagicBarrier,
+            SpellNameEnum.RollingRockLv2,
+            SpellNameEnum.WeakenAll,
+            SpellNameEnum.WaterPillarLv1,
+            SpellNameEnum.WaterPillarLv2,
+            SpellNameEnum.HealingLv1,
+            SpellNameEnum.SoulSearcherLv1,
+            SpellNameEnum.WaterPillarLv3,
+            SpellNameEnum.IceWall,
+            SpellNameEnum.IceKnife,
+            SpellNameEnum.Exit,
+            SpellNameEnum.Escape,
+            SpellNameEnum.Return,
+            SpellNameEnum.HealingLv2,
+            SpellNameEnum.SoulSearcherLv2,
+            SpellNameEnum.WalkingWater,
+            SpellNameEnum.DrainMagic,
+            SpellNameEnum.Invalidity,
+            SpellNameEnum.WindCutterLv1,
+            SpellNameEnum.WindCutterLv2,
+            SpellNameEnum.RestrictionLv1,
+            SpellNameEnum.EvadeLv1,
+            SpellNameEnum.SilenceLv1,
+            SpellNameEnum.WindCutterLv3,
+            SpellNameEnum.LargeCutter,
+            SpellNameEnum.RestrictionLv2,
+            SpellNameEnum.WindBomb,
+            SpellNameEnum.EvadeLv2,
+            SpellNameEnum.Cyclone,
+            SpellNameEnum.SlowEnemy,
+            SpellNameEnum.WindWalk,
+            SpellNameEnum.SilenceLv2,
+            SpellNameEnum.UltimateWind,
+        };
+
+        public static SpellNameEnum[] BossSpellsCastableAnywhere =
+        {
+            //SpellNameEnum.SolvaringFireBlast,
+            //SpellNameEnum.SolvaringEarthSpikes,
+            SpellNameEnum.ZelseWindRazor,
+            SpellNameEnum.ZelseWindZipper,
+            SpellNameEnum.NeptyBubbleShot,
+            //SpellNameEnum.NeptyBubbleShield,
+            SpellNameEnum.FargoLavaBall,
+            SpellNameEnum.FargoExplosion,
+            //SpellNameEnum.ShilfLaser,
+            SpellNameEnum.ShilfDoveRazor,
+            //SpellNameEnum.GuiltyGroundPound,
+            //SpellNameEnum.GuiltySlash,
+            SpellNameEnum.BeigisSpiritSword,
+            //SpellNameEnum.BeigisGreenLaser,
+            //SpellNameEnum.MammonSolarBlast,
+            SpellNameEnum.MammonFlameWaves,
+            SpellNameEnum.MammonFireArrows
+        };
+
+        public readonly static SpellNameEnum[] BossSpellsAll =
+        {
+            SpellNameEnum.SolvaringFireBlast,
+            SpellNameEnum.SolvaringEarthSpikes,
+            SpellNameEnum.ZelseWindRazor,
+            SpellNameEnum.ZelseWindZipper,
+            SpellNameEnum.NeptyBubbleShot,
+            SpellNameEnum.NeptyBubbleShield,
+            SpellNameEnum.FargoLavaBall,
+            SpellNameEnum.FargoExplosion,
+            SpellNameEnum.ShilfLaser,
+            SpellNameEnum.ShilfDoveRazor,
+            SpellNameEnum.GuiltyGroundPound,
+            SpellNameEnum.GuiltySlash,
+            SpellNameEnum.BeigisSpiritSword,
+            SpellNameEnum.BeigisGreenLaser,
+            SpellNameEnum.MammonSolarBlast,
+            SpellNameEnum.MammonFlameWaves,
+            SpellNameEnum.MammonFireArrows
+        };
     }
 }
 

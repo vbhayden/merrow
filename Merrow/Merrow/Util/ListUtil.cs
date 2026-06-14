@@ -28,5 +28,11 @@ namespace Merrow.Util
             var index = (int)nameEnum;
             return definitions[index];
         }
+
+        public static SpellAnimationData GetSpellAnimation(this IList<SpellAnimationData> definitions, SpellNameEnum nameEnum)
+        {
+            var index = (int)nameEnum;
+            return definitions[index];
+        }
     }
 }

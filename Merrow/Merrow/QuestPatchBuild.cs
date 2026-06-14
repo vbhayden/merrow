@@ -276,14 +276,26 @@ namespace Merrow {
                     File.AppendAllText(filePath + fileName + "_spoiler.txt", "Extra Healing enabled." + Environment.NewLine);
                 }
 
-                //Bubble SS1, with shuffled spells. Just patch animation, since spell data is handled by shuffle
-                if (rndBubbleToggle.Checked) {
-                    if (!rndSpellNamesToggle.Checked) { //if you don't have hinted names, add Bubble name over SS1
-                        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbledata[i]); }
-                    }
+                ////Bubble SS1, with shuffled spells. Just patch animation, since spell data is handled by shuffle
+                //if (rndBubbleToggle.Checked) {
+                //    if (!rndSpellNamesToggle.Checked) { //if you don't have hinted names, add Bubble name over SS1
+                //        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbledata[i]); }
+                //    }
 
-                    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbleanim[i]); }
-                    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
+                //    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbleanim[i]); }
+                //    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
+                //}
+
+                var replacements = this.replacementWorkflow.GetVerbatimSpellReplacementData();
+                if (replacements.Count > 0)
+                {
+                    for (int k=0;  k<replacements.Count; k++)
+                    {
+                        var entry = replacements[k];
+
+                        // Need to swap the animation data along with the actual spell logic,
+                        // which 
+                    }
                 }
 
                 //Hinted Spell Names
@@ -770,9 +782,9 @@ namespace Merrow {
 
             //Maximum Accuracy
             if (rndAccuracyToggle.Checked) {
-                //spell accuracy: status 100
+                //spell accuracy: status 100 
                 var spells = library.spellData;
-                var statusSpells = library.statusSpells;
+                var statusSpells = SpellDefinitions.StatusSpells;
 
                 if (rndAccuracyDropdown.SelectedIndex == 0) { 
                     for (int i = 0; i < statusSpells.Length; i++) {

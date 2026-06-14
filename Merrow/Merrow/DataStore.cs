@@ -12,10 +12,12 @@ namespace Merrow {
         //DATA STORAGE LIBRARY/REFERENCE, DATA ARRAY COLLECTION
 
         public SpellData[] spellData;
+        public SpellAnimationData[] spellAnimData;
 
         public DataStore() 
         {
             this.spellData = SpellDefinitions.GetAllSpellData();
+            this.spellAnimData = SpellDefinitions.GetAllSpellAnimationData();
         }
 
         //public string[] spells = {
@@ -187,6 +189,7 @@ namespace Merrow {
             {"GIANT","WINDING","STEPS","WALK","D4F060","D4B900","800C3CA0"},
             {"SILENT","MUTED","SILENCE","MUTE","D4F070","D4B904","800C3CB0"},
             {"TEARING","RIPPING","FORCE","GYRE","D4F080","D4B908","800C3CC0"}
+
         };
 
         //PREWRITTEN: null boss spell, our new override boss pointer content
@@ -442,116 +445,6 @@ namespace Merrow {
         public string[] bubblecode = { "D4C324", "0044", "000A0001000202000000000F00A6005A00000000000000000000000040A000000003000E0000000100020000000000030000000000000000000000000000000000000000" };
 
         public string[] bubbleanim = { "D4DC80", "0048", "004E002B000300003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00" };
-
-
-        //spell categories
-        // public int[] statusspells = { 6, 17, 19, 22, 24, 25, 29, 43, 44, 47, 48, 49, 52, 54, 56, 57, 58 };
-        public SpellNameEnum[] statusSpells =
-        {
-            /* 06 */ SpellNameEnum.Compression,
-            /* 17 */ SpellNameEnum.SpiritArmorLv1,
-            /* 19 */ SpellNameEnum.WeaknessLv1,
-            /* 22 */ SpellNameEnum.SpiritArmorLv2,
-            /* 24 */ SpellNameEnum.Confusion,
-            /* 25 */ SpellNameEnum.WeaknessLv2,
-            /* 29 */ SpellNameEnum.WeakenAll,
-            /* 43 */ SpellNameEnum.DrainMagic,
-            /* 44 */ SpellNameEnum.Invalidity,
-            /* 47 */ SpellNameEnum.RestrictionLv1,
-            /* 48 */ SpellNameEnum.EvadeLv1,
-            /* 49 */ SpellNameEnum.SilenceLv1,
-            /* 52 */ SpellNameEnum.RestrictionLv2,
-            /* 54 */ SpellNameEnum.EvadeLv2,
-            /* 56 */ SpellNameEnum.SlowEnemy,
-            /* 57 */ SpellNameEnum.WindWalk,
-            /* 58 */ SpellNameEnum.SilenceLv2
-        };
-
-        // public int[] offenseSpells = { 0, 1, 3, 4, 5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 20, 21, 23, 26, 28, 30, 31, 34, 35, 36, 42, 45, 46, 50, 51, 53, 55, 59 };
-        public SpellNameEnum[] offenseSpells =
-        {
-            /* 00 */ SpellNameEnum.FireBallLv1,
-            /* 01 */ SpellNameEnum.FireBallLv2,
-            /* 03 */ SpellNameEnum.HomingArrowLv1,
-            /* 04 */ SpellNameEnum.HotSteamLv1,
-            /* 05 */ SpellNameEnum.FireBallLv3,
-            /* 08 */ SpellNameEnum.FirePillar,
-            /* 09 */ SpellNameEnum.HomingArrowLv2,
-            /* 10 */ SpellNameEnum.FireBomb,
-            /* 12 */ SpellNameEnum.MagmaBall,
-            /* 13 */ SpellNameEnum.Extinction,
-            /* 14 */ SpellNameEnum.HotSteamLv2,
-
-            /* 15 */ SpellNameEnum.RockLv1,
-            /* 16 */ SpellNameEnum.RockLv2,
-            /* 18 */ SpellNameEnum.RollingRockLv1,
-            /* 20 */ SpellNameEnum.RockLv3,
-            /* 21 */ SpellNameEnum.MagnetRock,
-            /* 23 */ SpellNameEnum.Avalanche,
-            /* 26 */ SpellNameEnum.RockShower,
-            /* 28 */ SpellNameEnum.RollingRockLv2,
-
-            /* 30 */ SpellNameEnum.WaterPillarLv1,
-            /* 31 */ SpellNameEnum.WaterPillarLv2,
-            /* 34 */ SpellNameEnum.WaterPillarLv3,
-            /* 35 */ SpellNameEnum.IceWall,
-            /* 36 */ SpellNameEnum.IceKnife,
-            /* 42 */ SpellNameEnum.WalkingWater,
-
-            /* 45 */ SpellNameEnum.WindCutterLv1,
-            /* 46 */ SpellNameEnum.WindCutterLv2,
-            /* 50 */ SpellNameEnum.WindCutterLv3,
-            /* 51 */ SpellNameEnum.LargeCutter,
-            /* 53 */ SpellNameEnum.WindBomb,
-            /* 55 */ SpellNameEnum.Cyclone,
-            /* 59 */ SpellNameEnum.UltimateWind,
-        };
-
-        // public int[] effectSpells = { 17, 19, 22, 25, 27, 32, 38, 40, 43, 44, 47, 48, 49, 52, 54, 56, 57, 58 };
-        public SpellNameEnum[] effectSpells =
-        {
-            // Trey: hese were not previously included, but are probably still considered status effects
-            //
-            /* 02 */ SpellNameEnum.PowerStaffLv1,
-            /* 07 */ SpellNameEnum.PowerStaffLv2,
-            /* 11 */ SpellNameEnum.VampiresTouch,
-
-            /* 17 */ SpellNameEnum.SpiritArmorLv1,
-            /* 19 */ SpellNameEnum.WeaknessLv1,
-            /* 22 */ SpellNameEnum.SpiritArmorLv2,
-            /* 25 */ SpellNameEnum.WeaknessLv2,
-            /* 27 */ SpellNameEnum.MagicBarrier,
-
-            /* 32 */ SpellNameEnum.HealingLv1,
-            /* 38 */ SpellNameEnum.Escape,
-            /* 40 */ SpellNameEnum.HealingLv2,
-            /* 43 */ SpellNameEnum.DrainMagic,
-            /* 44 */ SpellNameEnum.Invalidity,
-
-            /* 47 */ SpellNameEnum.RestrictionLv1,
-            /* 48 */ SpellNameEnum.EvadeLv1,
-            /* 49 */ SpellNameEnum.SilenceLv1,
-            /* 52 */ SpellNameEnum.RestrictionLv2,
-            /* 54 */ SpellNameEnum.EvadeLv2,
-            /* 56 */ SpellNameEnum.SlowEnemy,
-            /* 57 */ SpellNameEnum.WindWalk,
-            /* 58 */ SpellNameEnum.SilenceLv2,
-        };
-
-        // public int[] brianSpells = { 2, 6, 7, 11, 24, 29, 33, 37, 39, 41 };
-        public SpellNameEnum[] brianOnlySpells =
-        {
-            /* 02 */ SpellNameEnum.PowerStaffLv1,
-            /* 06 */ SpellNameEnum.Compression,
-            /* 07 */ SpellNameEnum.PowerStaffLv2,
-            /* 11 */ SpellNameEnum.VampiresTouch,
-            /* 24 */ SpellNameEnum.Confusion,
-            /* 29 */ SpellNameEnum.WeakenAll,
-            /* 33 */ SpellNameEnum.SoulSearcherLv1,
-            /* 37 */ SpellNameEnum.Exit,
-            /* 39 */ SpellNameEnum.Return,
-            /* 41 */ SpellNameEnum.SoulSearcherLv2,
-        };
 
         public string[] elementCapLocations = { "0202FF", "02033F", "02037F", "0203C7", "02A3DF", "02A3FB", "02A417", "02A433" };
 
