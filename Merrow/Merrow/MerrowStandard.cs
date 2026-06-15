@@ -1975,7 +1975,7 @@ namespace Merrow {
                     continue;
                 
                 var logicControl= logicMapping[entry.spellBeingAdded];
-                this.UpdateControlsForReplacementEntry(logicControl, entry);
+                this.UpdateControlForReplacementEntry(logicControl, entry);
             }
         }
 
@@ -1995,6 +1995,7 @@ namespace Merrow {
                 items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomBuff });
                 items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomDebuff });
                 items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomStatusSpell });
+                items.Add(new SpellReplacementLogicItem { logic = SpellReplacementLogic.RandomDamageSpell });
 
                 for (int s=0; s<this.playerSpellCount; s++)
                 {
@@ -2012,7 +2013,7 @@ namespace Merrow {
             }
         }
 
-        private void UpdateControlsForReplacementEntry(ComboBox control, SpellReplacementEntry entry)
+        private void UpdateControlForReplacementEntry(ComboBox control, SpellReplacementEntry entry)
         {
             if (entry.logic == SpellReplacementLogic.SpecificSpell)
             {
@@ -2024,15 +2025,8 @@ namespace Merrow {
                 var index = (int)entry.logic;
                 control.SelectedIndex = index;
             }
-        }
 
-
-        private void ProcessLogicUpdate(ComboBox comboBox, EventArgs e, SpellNameEnum spellName)
-        {
-            if (e == EventArgs.Empty)
-                return;
-
-            var logicSelection = (SpellReplacementLogic) comboBox.SelectedIndex;
+            Console.WriteLine($"[Boss Spells] Updated {control.Name} to index {control.SelectedIndex} with {entry.spellBeingAdded} -> {entry.logic} -> ? {entry.spellBeingReplaced}");
         }
 
         private void buttonBossSpellPresetNone_Click(object sender, EventArgs e)
@@ -2067,9 +2061,19 @@ namespace Merrow {
             this.OnPresetSelected(this.buttonBossSpellPresetCustom, SpellReplacementPreset.Custom);
         }
 
-        private void ProcessBossSpellAdditions()
-        {
 
+        private void ProcessLogicUpdate(ComboBox comboBox, EventArgs e, SpellNameEnum spellName)
+        {
+            if (e == EventArgs.Empty)
+                return;
+
+            var logicItem = (SpellReplacementLogicItem) comboBox.SelectedItem;
+            if (logicItem.logic == SpellReplacementLogic.SpecificSpell)
+            {
+                this.replacementWorkflow.SetExplicitReplacementMapping(spellName, logicItem.explicitReplacement);
+            }
+
+            this.replacementWorkflow.SetReplacementLogic(spellName, logicItem.logic);
         }
     }
 

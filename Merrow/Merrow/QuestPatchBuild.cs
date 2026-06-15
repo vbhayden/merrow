@@ -1,5 +1,6 @@
 ﻿using Merrow.Util;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -197,6 +198,48 @@ namespace Merrow {
             patchstrings.Add("000C");
             patchstrings.Add("000000060000000100000001");
 
+
+            // Pre-Spell Shuffle
+            //
+            // Since our boss spell replacement is expected to swap out the original spells with boss spells,
+            // handle that here so that we don't replace them for whatever they swapped with below.
+            //
+            var spellReplacements = this.replacementWorkflow.GetVerbatimSpellReplacementOperations();
+            var usersWantsToUseBossSpells = spellReplacements.Count > 0;
+            if (usersWantsToUseBossSpells)
+            {
+                var spellOperations = new MerrowPatchOperationChain();
+
+                var allSpellData = SpellDefinitions.GetAllSpellData();
+                var allSpellAnims = SpellDefinitions.GetAllSpellAnimationData();
+
+                for (int k=0; k<spellReplacements.Count; k++)
+                {
+                    var entry = spellReplacements[k];
+                    var spellToAdd = entry.spellBeingAdded;
+                    var spellToReplace = entry.spellBeingReplaced;
+
+                    var addedSpellData = allSpellData.GetSpell(spellToAdd);
+                    var addedSpellAnim = allSpellAnims.GetSpellAnimation(spellToAdd);
+
+                    var originalSpellData = allSpellData.GetSpell(spellToReplace);
+                    var originalSpellAnim = allSpellAnims.GetSpellAnimation(spellToReplace);
+
+                    var dataOperation = BossSpellReplacementWorkflow.GetSpellDataReplacementOperation(originalSpellData, addedSpellData);
+                    var animOperation = BossSpellReplacementWorkflow.GetSpellAnimReplacementOperation(originalSpellAnim, addedSpellAnim);
+
+                    originalSpellData.OverrideAttributeData(dataOperation.patchContents);
+
+                    spellOperations.AddWriteOperation(dataOperation);
+                    spellOperations.AddWriteOperation(animOperation);
+
+                    Console.WriteLine($"[Boss Spells] Adding {spellToAdd} -> {spellToReplace}");
+                }
+
+                spellOperations.ApplyOperations(this.patchstrings);
+                Console.WriteLine($"[Boss Spells] Applied patch operations ...");
+            }
+
             //Spell Shuffle
             if (rndSpellToggle.Checked) { 
                 for (int q = 0; q < playerSpellCount; q++) {
@@ -286,7 +329,7 @@ namespace Merrow {
                 //    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
                 //}
 
-                var replacements = this.replacementWorkflow.GetVerbatimSpellReplacementData();
+                var replacements = this.replacementWorkflow.GetVerbatimSpellReplacementOperations();
                 if (replacements.Count > 0)
                 {
                     for (int k=0;  k<replacements.Count; k++)
