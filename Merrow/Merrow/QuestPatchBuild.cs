@@ -208,10 +208,9 @@ namespace Merrow {
             var usersWantsToUseBossSpells = spellReplacements.Count > 0;
             if (usersWantsToUseBossSpells)
             {
-                var spellOperations = new MerrowPatchOperationChain();
-
-                var allSpellData = SpellDefinitions.GetAllSpellData();
-                var allSpellAnims = SpellDefinitions.GetAllSpellAnimationData();
+                var allSpellData = library.spellData;
+                var allSpellAnims = library.spellAnimData;
+                var allSpellText = library.spellTextData;
 
                 for (int k=0; k<spellReplacements.Count; k++)
                 {
@@ -221,27 +220,39 @@ namespace Merrow {
 
                     var addedSpellData = allSpellData.GetSpell(spellToAdd);
                     var addedSpellAnim = allSpellAnims.GetSpellAnimation(spellToAdd);
+                    var addedSpellText = allSpellText.GetSpellText(spellToAdd);
 
                     var originalSpellData = allSpellData.GetSpell(spellToReplace);
                     var originalSpellAnim = allSpellAnims.GetSpellAnimation(spellToReplace);
+                    var originalSpellText = allSpellText.GetSpellText(spellToReplace);
 
-                    var dataOperation = BossSpellReplacementWorkflow.GetSpellDataReplacementOperation(originalSpellData, addedSpellData);
-                    var animOperation = BossSpellReplacementWorkflow.GetSpellAnimReplacementOperation(originalSpellAnim, addedSpellAnim);
+                    var dataOperation = ReplacementOperations.GetSpellDataReplacementOperation(originalSpellData, addedSpellData);
+                    var animOperation = ReplacementOperations.GetSpellAnimReplacementOperation(originalSpellAnim, addedSpellAnim);
 
+                    originalSpellText.OverrideText(addedSpellText);
                     originalSpellData.OverrideAttributeData(dataOperation.patchContents);
+                    originalSpellData.OverrideSpellName(addedSpellData.DefaultSpellName);
 
-                    spellOperations.AddWriteOperation(dataOperation);
-                    spellOperations.AddWriteOperation(animOperation);
+                    // Only apply the data now if we're not going to shuffle the spells next
+                    if (this.rndSpellToggle.Checked == false)
+                        dataOperation.AddToPatchStrings(this.patchstrings);
+
+                    animOperation.AddToPatchStrings(this.patchstrings);
 
                     Console.WriteLine($"[Boss Spells] Adding {spellToAdd} -> {spellToReplace}");
                 }
-
-                spellOperations.ApplyOperations(this.patchstrings);
-                Console.WriteLine($"[Boss Spells] Applied patch operations ...");
             }
 
+            // By now, the original spells have had their data and animations replaced with
+            // other spells, and those adjustments have been noticed in the spells' objects,
+            // so we can 
+            this.ReRollSpellNames();
+
             //Spell Shuffle
-            if (rndSpellToggle.Checked) { 
+            if (rndSpellToggle.Checked) {
+
+                var postReplacementAttributes = library.spellData.CopyCurrentAttributeData();
+
                 for (int q = 0; q < playerSpellCount; q++) {
                     int tempq = 0;
 
@@ -251,56 +262,40 @@ namespace Merrow {
                     var defaultSpellData = library.spellData[q];
                     var swappedSpellData = library.spellData[tempq];
 
-                    var defaultSpellAddress = Convert.ToInt32(defaultSpellData.RomAddress, 16);
-                    var defaultSpellAttributes = defaultSpellData.GetAttributeData();
+                    var dataOperation = ReplacementOperations.GetSpellDataReplacementOperation(defaultSpellData, swappedSpellData);
 
-                    var swappedSpellAddress = Convert.ToInt32(swappedSpellData.RomAddress, 16);
-                    var swappedSpellAttributes = swappedSpellData.GetAttributeData();
+                    dataOperation.AddToPatchStrings(this.patchstrings);
 
-                    // We want to replace everything but the level requirement and menu setup,
-                    // but since the Spell Rule is at offset 0x2, just before the menu data,
-                    // we need to grab that individually and then take the rest of the spell data
-                    // from 0xA onwards
-                    //
+                    //var defaultSpellAddress = Convert.ToInt32(defaultSpellData.RomAddress, 16);
+                    //var defaultSpellAttributes = defaultSpellData.GetAttributeData();
 
-                    // Set rule address from decimal version
-                    var defaultRuleAddress = defaultSpellAddress + 0x2;
-                    var defaultRuleAddressHex = defaultRuleAddress.ToString("X6");
+                    //var swappedSpellAddress = Convert.ToInt32(swappedSpellData.RomAddress, 16);
+                    //var swappedSpellAttributes = swappedSpellData.GetAttributeData();
 
-                    // We want the 0x2 index value at 0000____... so offset by 4
-                    var swappedSpellRule = swappedSpellAttributes.Substring(2 * 0x2, 4);
+                    //// Set rule address from decimal version
+                    //var defaultRuleAddress = defaultSpellAddress + 0x2;
+                    //var defaultRuleAddressHex = defaultRuleAddress.ToString("X6");
 
-                    var defaultRemainingAddress= defaultSpellAddress + 0xA;
-                    var defaultRemainingAddressHex = defaultRemainingAddress.ToString("X6");
+                    //// We want the 0x2 index value at 0000____... so offset by 4
+                    //var swappedSpellRule = swappedSpellAttributes.Substring(2 * 0x2, 4);
 
-                    // Similarly, offset by 0xA to start 
-                    var swappedRemainingData = swappedSpellAttributes.Substring(2 * 0xA);
+                    //var defaultRemainingAddress= defaultSpellAddress + 0xA;
+                    //var defaultRemainingAddressHex = defaultRemainingAddress.ToString("X6");
 
-                    patchstrings.Add(defaultRuleAddressHex);        //current spell rule address
-                    patchstrings.Add("0002");                       //spell rule length, hex for 2
-                    patchstrings.Add(swappedSpellRule);             //copied spell rule data
+                    //// Similarly, offset by 0xA to start 
+                    //var swappedRemainingData = swappedSpellAttributes.Substring(2 * 0xA);
 
-                    patchstrings.Add(defaultRemainingAddressHex);   //current remaining address
-                    patchstrings.Add("003A");                       //remaining length, hex for 58
-                    patchstrings.Add(swappedRemainingData);         //copied remaining data
 
-                    spoilerspells[q] = $"{defaultSpellData.SpellEnum} > {swappedSpellData.SpellEnum}";
 
-                    //tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 3; //set rule address from dec version of hex, incrementing 3
-                    //tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
-                    //tempstr2 = library.spells[(tempq * 4) + 3].Substring(6, 2); //copy other spell rule data
-                    //patchstrings.Add(tempstr1); //current spell rule address
-                    //patchstrings.Add("0001"); //spell rule length, hex for 1
-                    //patchstrings.Add(tempstr2); //copied spell rule data
+                    //patchstrings.Add(defaultRuleAddressHex);        //current spell rule address
+                    //patchstrings.Add("0002");                       //spell rule length, hex for 2
+                    //patchstrings.Add(swappedSpellRule);             //copied spell rule data
 
-                    //tempaddr = Convert.ToInt32(library.spells[(q * 4) + 2]) + 11; //set remaining address from dec version of hex, incrementing 11
-                    //tempstr1 = Convert.ToString(tempaddr, 16); //convert updated address back to hex string
-                    //tempstr2 = library.spells[(tempq * 4) + 3].Substring(22); //copy other remaining data
-                    //patchstrings.Add(tempstr1); //current remaining address
-                    //patchstrings.Add("0039"); //remaining length, hex for 57
-                    //patchstrings.Add(tempstr2); //copied remaining data
+                    //patchstrings.Add(defaultRemainingAddressHex);   //current remaining address
+                    //patchstrings.Add("003A");                       //remaining length, hex for 58
+                    //patchstrings.Add(swappedRemainingData);         //copied remaining data
 
-                    //spoilerspells[q] = library.spells[(q * 4)] + " > " + library.spells[(tempq * 4)];
+                    spoilerspells[q] = $"{defaultSpellData.GetCurrentSpellName()} > {swappedSpellData.GetCurrentSpellName()}";
                 }
 
                 File.AppendAllText(filePath + fileName + "_spoiler.txt", "Spells overridden." + Environment.NewLine);
@@ -329,18 +324,6 @@ namespace Merrow {
                 //    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
                 //}
 
-                var replacements = this.replacementWorkflow.GetVerbatimSpellReplacementOperations();
-                if (replacements.Count > 0)
-                {
-                    for (int k=0;  k<replacements.Count; k++)
-                    {
-                        var entry = replacements[k];
-
-                        // Need to swap the animation data along with the actual spell logic,
-                        // which 
-                    }
-                }
-
                 //Hinted Spell Names
                 if (rndSpellNamesToggle.Checked && rndSpellDropdown.SelectedIndex == 0) {
                     //boss spells
@@ -348,18 +331,28 @@ namespace Merrow {
                         patchstrings.Add(library.shuffleBossSpellNames[i]); //first three are new null name, second three are boss name pointers
                     }
 
-                    //spell pointers
+                    var spellTextData = library.spellTextData;
+
+                    //spell name pointers
                     for (int i = 0; i < playerSpellCount; i++) {
-                        patchstrings.Add(library.shuffleNames2[i, 5]); //pointer location
+
+                        var spellText = spellTextData[i];
+                        var textArray = spellText.GetTextInfo();
+
+                        patchstrings.Add(textArray[5]); //pointer location
                         patchstrings.Add("0004"); //write four bytes
-                        patchstrings.Add(library.shuffleNames2[i, 6]); //new pointer data
+                        patchstrings.Add(textArray[6]); //new pointer data
                     }
 
-                    //spell names
+                    //spell name values
                     for (int i = 0; i < playerSpellCount; i++) {
+
+                        var spellText = spellTextData[i];
+                        var textArray = spellText.GetTextInfo();
+
                         string temps = ToHex(hintnames[i]);
                         int zeroes = 32 - temps.Length;
-                        patchstrings.Add(library.shuffleNames2[i, 4]);
+                        patchstrings.Add(textArray[4]);
                         patchstrings.Add("0010");
                         patchcontent = temps;
                         for (int j = 0; j < zeroes; j++) { patchcontent += "0"; }
@@ -426,8 +419,11 @@ namespace Merrow {
                     string hintstring = "OOPS%";
 
                     //string is written
-                    hintstring = library.newSpellItemDesc[shuffles[library.spellItemIDs[i]]];
+                    var correspondingSpellIndex = library.spellItemIDs[i];
+                    var shuffledSpellIndex = shuffles[correspondingSpellIndex];
+                    var shuffledSpellText = library.spellTextData[shuffledSpellIndex];
 
+                    hintstring = shuffledSpellText.GetItemText();
                     hintdata = TranslateString(hintstring);
 
                     int hintlen = (int)hintdata[1];
@@ -455,17 +451,17 @@ namespace Merrow {
                 }
             }
 
-            //Bubble SS1, without shuffled spells
-            if (rndBubbleToggle.Checked) {
-                if (!rndSpellToggle.Checked) { //can't check based on hinted names alone because it defaults to true
-                    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbledata[i]); }
-                    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubblecode[i]); }
-                    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbleanim[i]); }
+            ////Bubble SS1, without shuffled spells
+            //if (rndBubbleToggle.Checked) {
+            //    if (!rndSpellToggle.Checked) { //can't check based on hinted names alone because it defaults to true
+            //        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbledata[i]); }
+            //        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubblecode[i]); }
+            //        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbleanim[i]); }
 
-                    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
-                } 
-                //if both are checked, it's already handled by spell shuffle.
-            }
+            //        File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
+            //    } 
+            //    //if both are checked, it's already handled by spell shuffle.
+            //}
 
             //Spell Combination Fixes: Fix writing
             //This half of this function has to happen AFTER spells are shuffled and edited in other ways.

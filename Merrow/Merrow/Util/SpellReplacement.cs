@@ -411,7 +411,10 @@ namespace Merrow.Util
             { SpellNameEnum.MammonFlameWaves, SpellNameEnum.MagmaBall},
             { SpellNameEnum.MammonFireArrows, SpellNameEnum.HomingArrowLv2 },
         };
+    }
 
+    public static class ReplacementOperations
+    {
         public static string ReplaceSpellLogicData(SpellData original, SpellData replacement)
         {
             var originalAttributes = original.GetAttributeData();
@@ -421,14 +424,14 @@ namespace Merrow.Util
             // but everything else from the replacement spell.
             //
             const int MENU_LEVEL_REQ_OFFSET = 0x0;
-            const int MENU_LEVEL_REQ_LENGTH = 0x4;
+            const int MENU_LEVEL_REQ_LENGTH = 0x2;
             const int MENU_MEM_OFFSET = 0x4;
             const int MENU_MEM_LENGTH = 0x6;
 
             const int STR_LEVEL_START = 2 * MENU_LEVEL_REQ_OFFSET;
             const int STR_LEVEL_LENGTH = 2 * MENU_LEVEL_REQ_LENGTH;
             const int STR_MENU_START = 2 * MENU_MEM_OFFSET;
-            const int STR_MENU_LENGTH= 2 * MENU_MEM_LENGTH;
+            const int STR_MENU_LENGTH = 2 * MENU_MEM_LENGTH;
 
             var originalLevelReq = originalAttributes.Substring(STR_LEVEL_START, STR_LEVEL_LENGTH);
             var originalMenuData = originalAttributes.Substring(STR_MENU_START, STR_MENU_LENGTH);

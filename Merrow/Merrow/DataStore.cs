@@ -13,11 +13,19 @@ namespace Merrow {
 
         public SpellData[] spellData;
         public SpellAnimationData[] spellAnimData;
+        public SpellText[] spellTextData;
 
         public DataStore() 
         {
             this.spellData = SpellDefinitions.GetAllSpellData();
             this.spellAnimData = SpellDefinitions.GetAllSpellAnimationData();
+            this.spellTextData = SpellDefinitions.GetAllSpellTextData();
+
+            for (int k=0; k<this.spellTextData.Length; k++)
+            {
+                var itemDescription = this.newSpellItemDesc[k];
+                this.spellTextData[k].AssignItemText(itemDescription);
+            }
         }
 
         //public string[] spells = {
@@ -189,12 +197,15 @@ namespace Merrow {
             {"GIANT","WINDING","STEPS","WALK","D4F060","D4B900","800C3CA0"},
             {"SILENT","MUTED","SILENCE","MUTE","D4F070","D4B904","800C3CB0"},
             {"TEARING","RIPPING","FORCE","GYRE","D4F080","D4B908","800C3CC0"}
+            
+            // Boss Spells Start, index 60
+
 
         };
 
         //PREWRITTEN: null boss spell, our new override boss pointer content
         //Since boss spell names are never actually used, we're creating a boss spell name that's just a short junk string, and directing all boss spell name pointers to it.
-        public string[] shuffleBossSpellNames = {
+        public string[]  shuffleBossSpellNames = {
             "D4F090", "0002", "5000",
             "D4B90C", "0044", "800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0800C3CD0"
         };
@@ -938,7 +949,26 @@ namespace Merrow {
             "TEMPORAL BANE.#SLOW FOES' MOVEMENTS%",
             "TEMPORAL AURA.#WALK AMONG GIANTS%",
             "SUPPRESSION BANE.#SILENCE ALL VOICES%",
-            "SHRED ALL ENEMIES#WITH A THOUSAND CUTS%"
+            "SHRED ALL ENEMIES#WITH A THOUSAND CUTS%",
+
+            // Boss Spell Additions, index: 60
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
+            $"UNASSIGNED",
         };
 
         public string[] specialSpellItemDesc = {

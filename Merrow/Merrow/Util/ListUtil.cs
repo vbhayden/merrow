@@ -34,5 +34,25 @@ namespace Merrow.Util
             var index = (int)nameEnum;
             return definitions[index];
         }
+
+        public static SpellText GetSpellText(this IList<SpellText> definitions, SpellNameEnum nameEnum)
+        {
+            var index = (int)nameEnum;
+            return definitions[index];
+        }
+
+        private static List<string> attributeCache = new List<string>();
+        public static string[] CopyCurrentAttributeData(this IList<SpellData> definitions)
+        {
+            attributeCache.Clear();
+
+            foreach (SpellData data in definitions)
+            {
+                var attributes = data.GetAttributeData();
+                attributeCache.Add(attributes);
+            }
+
+            return attributeCache.ToArray();
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace MerrowTests
             var neptyBubbleShot = allSpellData.GetSpell(SpellNameEnum.NeptyBubbleShot);
 
             const string EXPECTED_RESULT = "000A0001000202000000000F00C8005A00000000000000000000000040A000000003000E0000000100020000000000030000000000000000000000000000000000000000";
-            var actualResult = BossSpellReplacementWorkflow.ReplaceSpellLogicData(soulSearcherOne, neptyBubbleShot);
+            var actualResult = ReplacementOperations.ReplaceSpellLogicData(soulSearcherOne, neptyBubbleShot);
 
             Assert.AreEqual(EXPECTED_RESULT, actualResult);
         }
@@ -51,7 +51,7 @@ namespace MerrowTests
             var originalData = allSpellData.GetSpell(spellToReplace);
             var replacementData = allSpellData.GetSpell(spellToAdd);
 
-            var replacementHex = BossSpellReplacementWorkflow.ReplaceSpellLogicData(originalData, replacementData);
+            var replacementHex = ReplacementOperations.ReplaceSpellLogicData(originalData, replacementData);
 
             Console.WriteLine($"[Test] {spellToAdd} replacing {spellToReplace}: ");
             Console.WriteLine($"[Test]   original: {originalData.DefaultAttributeData}");

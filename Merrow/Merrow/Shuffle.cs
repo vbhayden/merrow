@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Security;
 using System.Drawing;
+using Merrow.Util;
 
 namespace Merrow {
     public partial class MerrowStandard {
@@ -237,38 +238,10 @@ namespace Merrow {
             }
 
             //SPELL NAME SHUFFLING (based on shuffles array and existing data)
-
-            for (int i = 0; i < playerSpellCount; i++) {
-                int fiftyfiftyfiftyfifty = SysRand.Next(4);
-                if (rndSpellNamesDropdown.SelectedIndex == 1) { fiftyfiftyfiftyfifty = 0; } //"Linear" option
-                switch (fiftyfiftyfiftyfifty) {
-                    case 0:
-                        hintnames[i] = library.shuffleNames2[i,0];
-                        hintnames[i] += " " + library.shuffleNames2[shuffles[i],2];
-                        break;
-
-                    case 1:
-                        hintnames[i] = library.shuffleNames2[i,0];
-                        hintnames[i] += " " + library.shuffleNames2[shuffles[i],3];
-                        break;
-
-                    case 2:
-                        hintnames[i] = library.shuffleNames2[shuffles[i],0];
-                        hintnames[i] += " " + library.shuffleNames2[i,2];
-                        break;
-
-                    case 3:
-                        hintnames[i] = library.shuffleNames2[shuffles[i],0];
-                        hintnames[i] += " " + library.shuffleNames2[i,3];
-                        break;
-
-                    default:
-                        hintnames[i] = library.shuffleNames2[i,0];
-                        hintnames[i] += " " + library.shuffleNames2[shuffles[i],2];
-                        break;
-                }
-                //Console.WriteLine(i.ToString() + ": " + hintnames[i]);
-            }
+            //
+            // Moved to dedicated function to smooth the replacement process
+            //
+            this.ReRollSpellNames();
 
             //RANDOM CHESTS
 
@@ -1029,6 +1002,67 @@ namespace Merrow {
             }
 
             shufflingnow = false;
+        }
+
+        public void ReRollSpellNames()
+        {
+            //SPELL NAME SHUFFLING (based on shuffles array and existing data)
+
+            var allSpellTextData = library.spellTextData;
+
+            for (int i = 0; i < playerSpellCount; i++)
+            {
+                int fiftyfiftyfiftyfifty = SysRand.Next(3);
+                if (rndSpellNamesDropdown.SelectedIndex == 1) { fiftyfiftyfiftyfifty = 0; } //"Linear" option, "Obvious" in dropdown
+
+                var spellIndex = shuffles[i];
+
+                var shuffledSpell = allSpellTextData[spellIndex];
+                var defaultSpell = allSpellTextData[i];
+
+                var shuffledNames = shuffledSpell.GetTextInfo();
+                var defaultNames = shuffledSpell.GetTextInfo();
+
+                var format = SysRand.Next(2);
+                var firstSelector = SysRand.Next(2);
+                var lastSelector = SysRand.Next(2);
+
+                switch (fiftyfiftyfiftyfifty)
+                {
+                    case 0:
+                        //hintnames[i] = library.shuffleNames2[i,0];
+                        //hintnames[i] += " " + library.shuffleNames2[shuffles[i],2];
+
+                        hintnames[i] = defaultNames[0];
+                        hintnames[i] += " " + shuffledNames[2];
+                        break;
+
+                    case 1:
+                        hintnames[i] = defaultNames[firstSelector];
+                        hintnames[i] += " " + shuffledNames[2 + lastSelector];
+
+                        //hintnames[i] = library.shuffleNames2[i,0];
+                        //hintnames[i] += " " + library.shuffleNames2[shuffles[i],3];
+                        break;
+
+                    case 2:
+                        hintnames[i] = shuffledNames[firstSelector];
+                        hintnames[i] += " " + defaultNames[2 + lastSelector];
+
+                        //hintnames[i] = library.shuffleNames2[shuffles[i],0];
+                        //hintnames[i] += " " + library.shuffleNames2[i,2];
+                        break;
+
+                    default:
+                        hintnames[i] = defaultNames[0];
+                        hintnames[i] += " " + shuffledNames[2];
+
+                        //hintnames[i] = library.shuffleNames2[i,0];
+                        //hintnames[i] += " " + library.shuffleNames2[shuffles[i],2];
+                        break;
+                }
+                //Console.WriteLine(i.ToString() + ": " + hintnames[i]);
+            }
         }
     }
 }
