@@ -468,6 +468,7 @@
             this.menuItemBFR = new System.Windows.Forms.MenuItem();
             this.menuItemCRT = new System.Windows.Forms.MenuItem();
             this.menuItemRLE = new System.Windows.Forms.MenuItem();
+            this.rndMammonDoorToggle = new System.Windows.Forms.CheckBox();
             this.tabsControl.SuspendLayout();
             this.CreditsTab.SuspendLayout();
             this.shortcutsBox.SuspendLayout();
@@ -2733,6 +2734,7 @@
             // 
             // rndProgressionBox
             // 
+            this.rndProgressionBox.Controls.Add(this.rndMammonDoorToggle);
             this.rndProgressionBox.Controls.Add(this.rndFireBookToggle);
             this.rndProgressionBox.Controls.Add(this.rndRevealSpiritsToggle);
             this.rndProgressionBox.Controls.Add(this.rndFastBlueToggle);
@@ -2757,7 +2759,7 @@
             this.rndFireBookToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndFireBookToggle.Enabled = false;
             this.rndFireBookToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndFireBookToggle.Location = new System.Drawing.Point(6, 139);
+            this.rndFireBookToggle.Location = new System.Drawing.Point(6, 163);
             this.rndFireBookToggle.Name = "rndFireBookToggle";
             this.rndFireBookToggle.Size = new System.Drawing.Size(232, 17);
             this.rndFireBookToggle.TabIndex = 23;
@@ -2771,7 +2773,7 @@
             this.rndRevealSpiritsToggle.AutoSize = true;
             this.rndRevealSpiritsToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndRevealSpiritsToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndRevealSpiritsToggle.Location = new System.Drawing.Point(6, 163);
+            this.rndRevealSpiritsToggle.Location = new System.Drawing.Point(6, 187);
             this.rndRevealSpiritsToggle.Name = "rndRevealSpiritsToggle";
             this.rndRevealSpiritsToggle.Size = new System.Drawing.Size(124, 17);
             this.rndRevealSpiritsToggle.TabIndex = 22;
@@ -2786,7 +2788,7 @@
             this.rndFastBlueToggle.AutoSize = true;
             this.rndFastBlueToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndFastBlueToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndFastBlueToggle.Location = new System.Drawing.Point(6, 259);
+            this.rndFastBlueToggle.Location = new System.Drawing.Point(6, 283);
             this.rndFastBlueToggle.Name = "rndFastBlueToggle";
             this.rndFastBlueToggle.Size = new System.Drawing.Size(98, 17);
             this.rndFastBlueToggle.TabIndex = 21;
@@ -2802,7 +2804,7 @@
             this.rndShannonHintsToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndShannonHintsToggle.Enabled = false;
             this.rndShannonHintsToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndShannonHintsToggle.Location = new System.Drawing.Point(6, 115);
+            this.rndShannonHintsToggle.Location = new System.Drawing.Point(6, 139);
             this.rndShannonHintsToggle.Name = "rndShannonHintsToggle";
             this.rndShannonHintsToggle.Size = new System.Drawing.Size(186, 17);
             this.rndShannonHintsToggle.TabIndex = 20;
@@ -2818,7 +2820,7 @@
             this.rndBlueHouseWarpToggle.AutoSize = true;
             this.rndBlueHouseWarpToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndBlueHouseWarpToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndBlueHouseWarpToggle.Location = new System.Drawing.Point(6, 211);
+            this.rndBlueHouseWarpToggle.Location = new System.Drawing.Point(6, 235);
             this.rndBlueHouseWarpToggle.Name = "rndBlueHouseWarpToggle";
             this.rndBlueHouseWarpToggle.Size = new System.Drawing.Size(224, 17);
             this.rndBlueHouseWarpToggle.TabIndex = 19;
@@ -2834,7 +2836,7 @@
             this.rndLockedEndgameToggle.AutoSize = true;
             this.rndLockedEndgameToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndLockedEndgameToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndLockedEndgameToggle.Location = new System.Drawing.Point(6, 187);
+            this.rndLockedEndgameToggle.Location = new System.Drawing.Point(6, 211);
             this.rndLockedEndgameToggle.Name = "rndLockedEndgameToggle";
             this.rndLockedEndgameToggle.Size = new System.Drawing.Size(186, 17);
             this.rndLockedEndgameToggle.TabIndex = 18;
@@ -2863,7 +2865,7 @@
             this.rndUnlockDoorsToggle.AutoSize = true;
             this.rndUnlockDoorsToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndUnlockDoorsToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndUnlockDoorsToggle.Location = new System.Drawing.Point(6, 235);
+            this.rndUnlockDoorsToggle.Location = new System.Drawing.Point(6, 259);
             this.rndUnlockDoorsToggle.Name = "rndUnlockDoorsToggle";
             this.rndUnlockDoorsToggle.Size = new System.Drawing.Size(167, 17);
             this.rndUnlockDoorsToggle.TabIndex = 15;
@@ -2877,7 +2879,7 @@
             this.rndCrystalReturnToggle.AutoSize = true;
             this.rndCrystalReturnToggle.Cursor = System.Windows.Forms.Cursors.Default;
             this.rndCrystalReturnToggle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rndCrystalReturnToggle.Location = new System.Drawing.Point(6, 91);
+            this.rndCrystalReturnToggle.Location = new System.Drawing.Point(6, 115);
             this.rndCrystalReturnToggle.Name = "rndCrystalReturnToggle";
             this.rndCrystalReturnToggle.Size = new System.Drawing.Size(127, 17);
             this.rndCrystalReturnToggle.TabIndex = 14;
@@ -4805,6 +4807,23 @@
             this.menuItemRLE.Text = "RLE/Quest String Converter";
             this.menuItemRLE.Click += new System.EventHandler(this.menuItemRLE_Click);
             // 
+            // rndMammonDoorToggle
+            // 
+            this.rndMammonDoorToggle.AutoSize = true;
+            this.rndMammonDoorToggle.Checked = true;
+            this.rndMammonDoorToggle.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.rndMammonDoorToggle.Cursor = System.Windows.Forms.Cursors.Default;
+            this.rndMammonDoorToggle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.rndMammonDoorToggle.Location = new System.Drawing.Point(6, 91);
+            this.rndMammonDoorToggle.Name = "rndMammonDoorToggle";
+            this.rndMammonDoorToggle.Size = new System.Drawing.Size(219, 17);
+            this.rndMammonDoorToggle.TabIndex = 24;
+            this.rndMammonDoorToggle.Text = "Lock backward door in Mammon\'s World";
+            this.rndToolTip.SetToolTip(this.rndMammonDoorToggle, "Locks the one door that weirdly lets you loop backward in Mammon\'s World. \r\nThe d" +
+        "oor doesn\'t allow you to leave MW, it just confuses and/or wastes your time.");
+            this.rndMammonDoorToggle.UseVisualStyleBackColor = true;
+            this.rndMammonDoorToggle.CheckedChanged += new System.EventHandler(this.rndMammonDoorToggle_CheckedChanged);
+            // 
             // MerrowStandard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -5234,6 +5253,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column8;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column9;
+        private System.Windows.Forms.CheckBox rndMammonDoorToggle;
     }
 }
 

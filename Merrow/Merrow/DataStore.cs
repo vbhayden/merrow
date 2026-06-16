@@ -96,7 +96,7 @@ namespace Merrow {
 
         public string[] wk1healing = {
             //weakness 1 with all data replaced by healing 1, except unlock level and menu location
-            "000D00110002010300000001000200640001000100000001000200003F800000000100000000000000000000000000000000000000000000000000000000000000000000",
+            "000D00030002010300000001000200640001000100000001000200003F800000000100000000000000000000000000000000000000000000000000000000000000000000",
             //weakness 1 default info, to reset if the option is disabled
             "000D001100020103000000010000005A0005000100000001000000003F800000000100000000000600000000000000030003000000000000000000000200000000000000"
         };
@@ -179,6 +179,26 @@ namespace Merrow {
             {"GIANT","WINDING","STEPS","WALK","D4F060","D4B900","800C3CA0"},
             {"SILENT","MUTED","SILENCE","MUTE","D4F070","D4B904","800C3CB0"},
             {"TEARING","RIPPING","FORCE","GYRE","D4F080","D4B908","800C3CC0"}
+        };
+
+        public string[,] bossSpellShuffleNames = {
+            {"BEAST","ROARING","FISTS","ROAR"}, //Solvaring
+            {"BARROW","GRAVE","STELE","SUNDER"},
+            {"RAZOR","WING","RAZORS","SWARM"}, //Zelse
+            {"RISING","SPINE","SPINES","RISER"},
+            {"BUBBLE","SPLASH","BUBBLES","POP"}, //Nepty
+            {"VORTEX","WHIRL","ROIL","TWIRL"},
+            {"HEAT","HEATED","ORB","SPHERE"}, //Fargo
+            {"VOLCANO","MAGMIC","CALDERA","CIRCLE"},
+            {"LASER","BEAMING","BEAM","PIERCE"}, //Shilf
+            {"CHASING","SUNBIRD","PHOENIX","FLOCK"},
+            {"GAVEL","JUDGE","HAMMER","VERDICT"}, //Guilty
+            {"HOWLING","CLAWING","PAIN","CLAWS"},
+            {"CRUEL","VILE","SPEAR","LANCE"}, //Beigis
+            {"ROYAL","REGAL","SWORD","SABRE"},
+            {"DARK","SOLAR","SUN","UMBRA"}, //Mammon
+            {"MELTING","CLOSING","HATRED","WALLS"},
+            {"NEEDLE","SHINING","SHINE","NEEDLES"}
         };
 
         //PREWRITTEN: null boss spell, our new override boss pointer content
@@ -425,12 +445,16 @@ namespace Merrow {
 
         //extra healing name replacement if hinted names isn't enabled: "MENDING LV1"
         public string[] mendingdata = { "D4EDF4", "000C", "4D454E44494E47204C563100" };
+        public string[] mendingnames = { "MENDING", "RESPITE", "MEND", "RESTORE" };
+        public string[] vanillaweaknessnames = { "WEAKEN", "CRACKED", "WEAK", "CRACK" };
+
         //soul search name replacement if hinted names isn't enabled: "BUBBLE"
         public string[] bubbledata = { "D4EEC8", "0006", "425542424C4500" };
-
         public string[] bubblecode = { "D4C324", "0044", "000A0001000202000000000F00A6005A00000000000000000000000040A000000003000E0000000100020000000000030000000000000000000000000000000000000000" };
-
         public string[] bubbleanim = { "D4DC80", "0048", "004E002B000300003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F800000FFFF0000000000003F8000003F8000001500FF00FF00FF00" };
+        public string[] bubblenames = { "BUBBLE", "SPLASH", "BUBBLES", "POP" };
+        public string[] vanillasoulsearchnames = { "SCAN", "SOUL", "VISION", "SENSE" };
+
 
         //spell categories
         public int[] statusspells = { 6, 17, 19, 22, 24, 25, 29, 43, 44, 47, 48, 49, 52, 54, 56, 57, 58 };
@@ -850,6 +874,7 @@ namespace Merrow {
         };
 
         //spell item names
+        //names are determined by the new spell's element
         public string[] newSpellItemName = {
             "WARPED FLUTE%","ROUGH FLUTE%","RUSTED FLUTE%","SILENT FLUTE%",
             "AEVAL'S BELL%","MACHA'S BELL%","BRIGID'S BELL%","CELINE'S BELL%",
@@ -2668,6 +2693,13 @@ namespace Merrow {
             "02A676", "0000",
             "02A688", "0000",
             "02A68A", "0000"
+        };
+
+        //data to disable the backward-path door in mammon's world
+        //locks the door with impossible item ID '3F'
+        //this is going into every merrow patch, doesn't need a checkmark
+        public string[] mammonbackwarddoordata = {
+            "607885", "0003", "10003F"
         };
 
 

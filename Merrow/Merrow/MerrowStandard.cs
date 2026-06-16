@@ -1145,17 +1145,15 @@ namespace Merrow {
         private void rndExtraHealingToggle_CheckedChanged(object sender, EventArgs e) {
             if (rndExtraHealingToggle.Checked) { //replace the spell's data and the randomized names
                 library.spells[79] = library.wk1healing[0];
-                library.shuffleNames2[19, 0] = "MENDING";
-                library.shuffleNames2[19, 1] = "RESPITE";
-                library.shuffleNames2[19, 2] = "MEND";
-                library.shuffleNames2[19, 3] = "RESTORE";
+                for (int i = 0; i < 4; i++) { 
+                    library.shuffleNames2[19, i] = library.mendingnames[i]; 
+                }
                 library.spells[76] = "Mending Lv1";
             } else {  //return the data to normal
                 library.spells[79] = library.wk1healing[1];
-                library.shuffleNames2[19, 0] = "WEAKEN";
-                library.shuffleNames2[19, 1] = "CRACKED";
-                library.shuffleNames2[19, 2] = "WEAK";
-                library.shuffleNames2[19, 3] = "CRACK";
+                for (int i = 0; i < 4; i++) { 
+                    library.shuffleNames2[19, i] = library.vanillaweaknessnames[i]; 
+                }
                 library.spells[76] = "Weakness Lv1";
             }
             UpdateCode();
@@ -1226,21 +1224,23 @@ namespace Merrow {
         private void rndBubbleToggle_CheckedChanged(object sender, EventArgs e) {
             if (rndBubbleToggle.Checked) { //replace the spell's data and the randomized names
                 library.spells[135] = library.ss1bubble[0];
-                library.shuffleNames2[33, 0] = "BUBBLE";
-                library.shuffleNames2[33, 1] = "SPLASH";
-                library.shuffleNames2[33, 2] = "BUBBLES";
-                library.shuffleNames2[33, 3] = "POP";
+                for (int i = 0; i < 4; i++) { 
+                    library.shuffleNames2[33, i] = library.bossSpellShuffleNames[4, i]; 
+                }
                 library.spells[132] = "Bubble";
             } else {  //return the data to normal
                 library.spells[135] = library.ss1bubble[1];
-                library.shuffleNames2[33, 0] = "SCAN";
-                library.shuffleNames2[33, 1] = "SOUL";
-                library.shuffleNames2[33, 2] = "VISION";
-                library.shuffleNames2[33, 3] = "SENSE";
+                for (int i = 0; i < 4; i++) { 
+                    library.shuffleNames2[33, i] = library.vanillasoulsearchnames[i]; 
+                }
                 library.spells[132] = "Soul Searcher Lv1";
             }
             UpdateCode();
             Shuffling(true);
+        }
+
+        private void rndMammonDoorToggle_CheckedChanged(object sender, EventArgs e) {
+            UpdateCode();
         }
 
         //FRENCH VANILLA OVERRIDE
@@ -1265,6 +1265,7 @@ namespace Merrow {
                 rndMaxMessageToggle.Checked = true;
                 rndTextImprovementsToggle.Checked = true;
                 rndCombatExpToggle.Checked = true;
+                rndMammonDoorToggle.Checked = true;
             }
 
             if (!rndFrenchVanillaToggle.Checked) {
@@ -1326,6 +1327,7 @@ namespace Merrow {
                 rndTextImprovementsToggle.Enabled = false;
                 rndFireBookToggle.Checked = true;
                 rndFireBookToggle.Enabled = true; //turned on by default but can be turned off if needed
+                rndMammonDoorToggle.Checked = true;
 
                 //spell options. 
                 rndSpellToggle.Checked = true;

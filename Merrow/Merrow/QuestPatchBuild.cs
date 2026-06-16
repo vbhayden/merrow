@@ -1516,6 +1516,14 @@ namespace Merrow {
                 File.AppendAllText(filePath + fileName + "_spoiler.txt", "Combat EXP display changed to numerical." + Environment.NewLine);
             }
 
+            //Lock Backward Door In Mammon's World
+            if (rndMammonDoorToggle.Checked) {
+                for (int i = 0; i < 3; i++) {
+                    patchstrings.Add(library.mammonbackwarddoordata[i]);
+                }
+                File.AppendAllText(filePath + fileName + "_spoiler.txt", "Locked useless backward door in Mammon's World." + Environment.NewLine);
+            }
+
             // Monster Shuffling
             //
             var shuffleTables = this.checkBoxShuffleEnemyTables.Checked;
