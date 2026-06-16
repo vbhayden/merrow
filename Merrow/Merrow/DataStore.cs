@@ -450,6 +450,7 @@ namespace Merrow {
 
         //extra healing name replacement if hinted names isn't enabled: "MENDING LV1"
         public string[] mendingdata = { "D4EDF4", "000C", "4D454E44494E47204C563100" };
+
         //soul search name replacement if hinted names isn't enabled: "BUBBLE"
         public string[] bubbledata = { "D4EEC8", "0006", "425542424C4500" };
 

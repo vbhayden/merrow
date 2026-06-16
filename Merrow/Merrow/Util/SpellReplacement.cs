@@ -195,6 +195,8 @@ namespace Merrow.Util
                 if (foundReplacement)
                 {
                     entry.spellBeingReplaced = replacementSpell;
+
+                    Console.WriteLine($"[Boss Spells] Replacing {replacementSpell} with {entry.spellBeingAdded}");
                 }
                 else
                 {
@@ -215,14 +217,17 @@ namespace Merrow.Util
                 case SpellReplacementLogic.RandomSpell:
                     return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.AllBaseSpells, out chosenReplacement);
 
+                case SpellReplacementLogic.RandomDamageSpell:
+                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.OffenseSpells, out chosenReplacement);
+
                 case SpellReplacementLogic.RandomStatusSpell:
                     return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.StatusSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomBuff:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.StatusSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.BuffSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomDebuff:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.StatusSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.DebuffSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.SpecificSpell:
                     return this.TryGetExplicitPairing(spellBeingAdded, avilableReplacements, out chosenReplacement);
@@ -255,6 +260,7 @@ namespace Merrow.Util
                 if (isAvailable)
                 {
                     chosenReplacement = possibleReplacement;
+                    availableReplacements.Remove(possibleReplacement);
                     return true;
                 }
 
@@ -441,6 +447,42 @@ namespace Merrow.Util
                 .ReplaceAt(STR_MENU_START, originalMenuData);
 
             return replacementAttributes;
+        }
+
+        private static string ReplaceSpellLogicDataRaw(string originalData, string replacementData)
+        {
+            // Grab the spell rule and menu path of the original spell,
+            // but everything else from the replacement spell.
+            //
+            const int MENU_LEVEL_REQ_OFFSET = 0x0;
+            const int MENU_LEVEL_REQ_LENGTH = 0x2;
+            const int MENU_MEM_OFFSET = 0x4;
+            const int MENU_MEM_LENGTH = 0x6;
+
+            const int STR_LEVEL_START = 2 * MENU_LEVEL_REQ_OFFSET;
+            const int STR_LEVEL_LENGTH = 2 * MENU_LEVEL_REQ_LENGTH;
+            const int STR_MENU_START = 2 * MENU_MEM_OFFSET;
+            const int STR_MENU_LENGTH = 2 * MENU_MEM_LENGTH;
+
+            var originalLevelReq = originalData.Substring(STR_LEVEL_START, STR_LEVEL_LENGTH);
+            var originalMenuData = originalData.Substring(STR_MENU_START, STR_MENU_LENGTH);
+
+            replacementData = replacementData
+                .ReplaceAt(STR_LEVEL_START, originalLevelReq)
+                .ReplaceAt(STR_MENU_START, originalMenuData);
+
+            return replacementData;
+        }
+
+        public static MerrowPatchOperation GetSpellDataReplacementOperation(string originalRomAddress, string originalDataRaw, string replacementDataRaw)
+        {
+            var replacedDataString = ReplaceSpellLogicDataRaw(originalDataRaw, replacementDataRaw);
+
+            return new MerrowPatchOperation
+            {
+                romAddress = originalRomAddress,
+                patchContents = replacedDataString
+            };
         }
 
         public static MerrowPatchOperation GetSpellDataReplacementOperation(SpellData originalData, SpellData replacementData)

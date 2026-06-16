@@ -233,10 +233,7 @@ namespace Merrow {
                     originalSpellData.OverrideAttributeData(dataOperation.patchContents);
                     originalSpellData.OverrideSpellName(addedSpellData.DefaultSpellName);
 
-                    // Only apply the data now if we're not going to shuffle the spells next
-                    if (this.rndSpellToggle.Checked == false)
-                        dataOperation.AddToPatchStrings(this.patchstrings);
-
+                    dataOperation.AddToPatchStrings(this.patchstrings);
                     animOperation.AddToPatchStrings(this.patchstrings);
 
                     Console.WriteLine($"[Boss Spells] Adding {spellToAdd} -> {spellToReplace}");
@@ -245,7 +242,7 @@ namespace Merrow {
 
             // By now, the original spells have had their data and animations replaced with
             // other spells, and those adjustments have been noticed in the spells' objects,
-            // so we can 
+            // so we can randomize 
             this.ReRollSpellNames();
 
             //Spell Shuffle
@@ -262,38 +259,14 @@ namespace Merrow {
                     var defaultSpellData = library.spellData[q];
                     var swappedSpellData = library.spellData[tempq];
 
-                    var dataOperation = ReplacementOperations.GetSpellDataReplacementOperation(defaultSpellData, swappedSpellData);
+                    var defaultAttributeAddress = defaultSpellData.RomAddress;
+
+                    var defaultSpellDataRaw = postReplacementAttributes[q];
+                    var swappedSpellDataRaw = postReplacementAttributes[tempq];
+
+                    var dataOperation = ReplacementOperations.GetSpellDataReplacementOperation(defaultAttributeAddress, defaultSpellDataRaw, swappedSpellDataRaw);
 
                     dataOperation.AddToPatchStrings(this.patchstrings);
-
-                    //var defaultSpellAddress = Convert.ToInt32(defaultSpellData.RomAddress, 16);
-                    //var defaultSpellAttributes = defaultSpellData.GetAttributeData();
-
-                    //var swappedSpellAddress = Convert.ToInt32(swappedSpellData.RomAddress, 16);
-                    //var swappedSpellAttributes = swappedSpellData.GetAttributeData();
-
-                    //// Set rule address from decimal version
-                    //var defaultRuleAddress = defaultSpellAddress + 0x2;
-                    //var defaultRuleAddressHex = defaultRuleAddress.ToString("X6");
-
-                    //// We want the 0x2 index value at 0000____... so offset by 4
-                    //var swappedSpellRule = swappedSpellAttributes.Substring(2 * 0x2, 4);
-
-                    //var defaultRemainingAddress= defaultSpellAddress + 0xA;
-                    //var defaultRemainingAddressHex = defaultRemainingAddress.ToString("X6");
-
-                    //// Similarly, offset by 0xA to start 
-                    //var swappedRemainingData = swappedSpellAttributes.Substring(2 * 0xA);
-
-
-
-                    //patchstrings.Add(defaultRuleAddressHex);        //current spell rule address
-                    //patchstrings.Add("0002");                       //spell rule length, hex for 2
-                    //patchstrings.Add(swappedSpellRule);             //copied spell rule data
-
-                    //patchstrings.Add(defaultRemainingAddressHex);   //current remaining address
-                    //patchstrings.Add("003A");                       //remaining length, hex for 58
-                    //patchstrings.Add(swappedRemainingData);         //copied remaining data
 
                     spoilerspells[q] = $"{defaultSpellData.GetCurrentSpellName()} > {swappedSpellData.GetCurrentSpellName()}";
                 }
@@ -314,18 +287,11 @@ namespace Merrow {
                     File.AppendAllText(filePath + fileName + "_spoiler.txt", "Extra Healing enabled." + Environment.NewLine);
                 }
 
-                ////Bubble SS1, with shuffled spells. Just patch animation, since spell data is handled by shuffle
-                //if (rndBubbleToggle.Checked) {
-                //    if (!rndSpellNamesToggle.Checked) { //if you don't have hinted names, add Bubble name over SS1
-                //        for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbledata[i]); }
-                //    }
-
-                //    for (int i = 0; i < 3; i++) { patchstrings.Add(library.bubbleanim[i]); }
-                //    File.AppendAllText(filePath + fileName + "_spoiler.txt", "Soul Search Lv1 replaced with Bubble." + Environment.NewLine);
-                //}
-
                 //Hinted Spell Names
                 if (rndSpellNamesToggle.Checked && rndSpellDropdown.SelectedIndex == 0) {
+
+                    this.ReRollSpellNames();
+
                     //boss spells
                     for (int i = 0; i < 6; i++) {
                         patchstrings.Add(library.shuffleBossSpellNames[i]); //first three are new null name, second three are boss name pointers

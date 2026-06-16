@@ -1964,9 +1964,12 @@ namespace Merrow {
             this.RedrawWithReplacementOperations(entries);
         }
 
+        private bool currentlySwappingPresets;
         private void RedrawWithReplacementOperations(List<SpellReplacementEntry> replacementEntries)
         {
             var logicMapping = this.GetSpellLogicControlMapping();
+
+            this.currentlySwappingPresets = true;
 
             for (int k=0; k<replacementEntries.Count; k++)
             {
@@ -1977,6 +1980,8 @@ namespace Merrow {
                 var logicControl= logicMapping[entry.spellBeingAdded];
                 this.UpdateControlForReplacementEntry(logicControl, entry);
             }
+
+            this.currentlySwappingPresets = false;
         }
 
         private void PopulateLogicControls()
@@ -2064,8 +2069,12 @@ namespace Merrow {
 
         private void ProcessLogicUpdate(ComboBox comboBox, EventArgs e, SpellNameEnum spellName)
         {
-            if (e == EventArgs.Empty)
+            Console.WriteLine($"[Boss Spells] Processing ComboBox Update, event args: {e} ...");
+
+            if (this.currentlySwappingPresets)
                 return;
+
+            Console.WriteLine($"[Boss Spells] Non-Empty, assigning swap for {spellName} ...");
 
             var logicItem = (SpellReplacementLogicItem) comboBox.SelectedItem;
             if (logicItem.logic == SpellReplacementLogic.SpecificSpell)
