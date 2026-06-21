@@ -483,6 +483,7 @@ namespace Merrow {
                 newbosselem[0] = SysRand.Next(0, 4); //roll Guilty element
                 newmonsterstats[437] = newbosselem[0]; //assign into array for spoiler log
 
+                //Disabled for now: Rolling Mammon's element seems to break his AI script somehow and make him only use one attack.
                 //newbosselem[1] = SysRand.Next(0, 4); //roll Mammon element
                 //newmonsterstats[449] = newbosselem[1]; //assign into array for spoiler log
             }

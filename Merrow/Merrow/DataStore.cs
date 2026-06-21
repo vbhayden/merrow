@@ -194,8 +194,8 @@ namespace Merrow {
             {"CHASING","SUNBIRD","PHOENIX","FLOCK"},
             {"GAVEL","JUDGE","HAMMER","VERDICT"}, //Guilty
             {"HOWLING","CLAWING","PAIN","CLAWS"},
-            {"CRUEL","VILE","SPEAR","LANCE"}, //Beigis
-            {"ROYAL","REGAL","SWORD","SABRE"},
+            {"ROYAL","REGAL","SWORD","SABRE"}, //Beigis
+            {"CRUEL","VILE","SPEAR","LANCE"},
             {"DARK","SOLAR","SUN","UMBRA"}, //Mammon
             {"MELTING","CLOSING","HATRED","WALLS"},
             {"NEEDLE","SHINING","SHINE","NEEDLES"}
@@ -875,23 +875,23 @@ namespace Merrow {
 
         //spell item names
         //names are determined by the new spell's element
-        public string[] newSpellItemName = {
-            "WARPED FLUTE%","ROUGH FLUTE%","RUSTED FLUTE%","SILENT FLUTE%",
-            "AEVAL'S BELL%","MACHA'S BELL%","BRIGID'S BELL%","CELINE'S BELL%",
-            "EFFIGY%","FIGURINE%","REPLICA%","MANIKIN%",
-            "BALOR SABATON%","DAGDA'S BOOTS%","MANANN WRAPS%","LUGH GREAVES%",
-            "NEMAIN AMULET%","ERNMAS AMULET%","BADB AMULET%","AINE AMULET%",
-            "ELATHA STONE%","CULANN STONE%","DIAN STONE%","LUCHTA STONE%"
+        public string[,] newSpellItemName = {
+            { "WARPED FLUTE%","ROUGH FLUTE%","RUSTED FLUTE%","SILENT FLUTE%" },
+            { "AEVAL'S BELL%","MACHA'S BELL%","BRIGID'S BELL%","CELINE'S BELL%" },
+            { "EFFIGY%","FIGURINE%","REPLICA%","MANIKIN%" },
+            { "BALOR SABATON%","DAGDA'S BOOTS%","MANANN WRAPS%","LUGH GREAVES%" },
+            { "NEMAIN AMULET%","ERNMAS AMULET%","BADB AMULET%","AINE AMULET%" },
+            { "ELATHA STONE%","CULANN STONE%","DIAN STONE%","LUCHTA STONE%" }
         };
 
         //spell item names
-        public string[] newSpellItemCapCase = {
-            "Warped Flute","Rough Flute","Rusted Flute","Silent Flute",
-            "Aeval's Bell","Macha's Bell","Brigid's Bell","Celine's Bell",
-            "Effigy","Figurine","Replica","Manikin",
-            "Balor Sabaton","Dagda's Boots","Manann Wraps","Lugh Greaves",
-            "Nemain Amulet","Ernmas Amulet","Badb Amulet","Aine Amulet",
-            "Elatha Stone","Culann Stone","Dian Stone","Luchta Stone"
+        public string[,] newSpellItemCapCase = {
+            { "Warped Flute","Rough Flute","Rusted Flute","Silent Flute" },
+            { "Aeval's Bell","Macha's Bell","Brigid's Bell","Celine's Bell" },
+            { "Effigy","Figurine","Replica","Manikin" },
+            { "Balor Sabaton","Dagda's Boots","Manann Wraps","Lugh Greaves" },
+            { "Nemain Amulet","Ernmas Amulet","Badb Amulet","Aine Amulet" },
+            { "Elatha Stone","Culann Stone","Dian Stone","Luchta Stone" }
         };
 
         //spell item descriptions
@@ -956,6 +956,7 @@ namespace Merrow {
             "TEMPORAL AURA.#WALK AMONG GIANTS%",
             "SUPPRESSION BANE.#SILENCE ALL VOICES%",
             "SHRED ALL ENEMIES#WITH A THOUSAND CUTS%"
+            
         };
 
         public string[] specialSpellItemDesc = {

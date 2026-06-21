@@ -225,11 +225,16 @@ namespace Merrow {
             //fill the reference from arrays
             PopulateReference();
 
-            for (int i = 0; i < tabpagestocheck; i++) {
-                toggles.AddRange(GetAllToggles(rndTabsControl.TabPages[i]));
-                dropdowns.AddRange(GetAllDropdowns(rndTabsControl.TabPages[i]));
-                sliders.AddRange(GetAllSliders(rndTabsControl.TabPages[i]));
-            }
+            toggles.AddRange(GetAllToggles(rndTabsControl));
+            dropdowns.AddRange(GetAllDropdowns(rndTabsControl));
+            sliders.AddRange(GetAllSliders(rndTabsControl));
+
+            //for (int i = 0; i < tabpagestocheck; i++) {
+            //    TabPage currentPage = rndTabsControl.TabPages[i];
+            //    toggles.AddRange(GetAllToggles(currentPage));
+            //    dropdowns.AddRange(GetAllDropdowns(currentPage));
+            //    sliders.AddRange(GetAllSliders(currentPage));
+            //}
 
             loadfinished = true; //loadfinished being false prevents some UI elements from taking incorrect action during the initial setup
             UpdateCode();
@@ -857,6 +862,7 @@ namespace Merrow {
 
         private void rndShortcodeText_TextChanged(object sender, EventArgs e) {
             if (!updatingcode && loadfinished) { //if the code is not auto-updated, ie only when user input happens
+                
                 int errorcode = ApplyCode();
 
                 if (errorcode != 0) {
@@ -1350,7 +1356,7 @@ namespace Merrow {
                 rndDropsDropdown.SelectedIndex = 1;
                 rndGiftersDropdown.SelectedIndex = 1;
                 rndWingsmithsDropdown.SelectedIndex = 0; //now setting wingsmiths to unchanged by default.      
-                itemListTabs.SelectedIndex = currItemTab; //changing values changes table, so reset back to last one
+                //itemListTabs.SelectedIndex = currItemTab; //changing values changes table, so reset back to last one
 
                 //enable crystal valley postern
                 rndCrystalReturnToggle.Checked = true;
@@ -1788,6 +1794,7 @@ namespace Merrow {
             rndLostKeysDropdown.SelectedIndex = 0;
             tabsControl.SelectedIndex = 1;
             rndTabsControl.SelectedIndex = 3;
+            rndGiftersDropdown.SelectedIndex = 1;
         }
 
         private void menuOpenShortcut_Click(object sender, EventArgs e) {
@@ -1796,6 +1803,7 @@ namespace Merrow {
             rndLostKeysDropdown.SelectedIndex = 1;
             tabsControl.SelectedIndex = 1;
             rndTabsControl.SelectedIndex = 3;
+            rndGiftersDropdown.SelectedIndex = 1;
         }
     }
 }

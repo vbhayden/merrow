@@ -173,9 +173,49 @@ namespace Merrow {
             else if (tempInt >= 63 && tempInt <= 90) { asciiOffset = 53; } //?@A-Z, 63-90
             else if (tempInt >= 97) { asciiOffset = 59; } //a-z, 97-122
 
-            string binString = Convert.ToString(tempInt -= asciiOffset, 2);
+            string binString = Convert.ToString(tempInt -= asciiOffset, 2).PadLeft(6, '0');
 
             return binString;
+        }
+
+        public static string DecToAsc64(int inputInt) { //Convert decimal to compressed ascii
+            int asciiOffset = 0;
+            string extendString = "";
+            int modSteps = 0;
+
+            if (inputInt % 64 <= 9) { asciiOffset = 48; } //0-9, 48-57
+            else if (inputInt % 64 >= 10 && inputInt % 64 <= 37) { asciiOffset = 53; } //?@A-Z, 63-90
+            else if (inputInt % 64 >= 38 && inputInt % 64 <= 63) { asciiOffset = 59; } //a-z, 97-122
+
+            //if value is greater than 63, add a + per 64 instead of going further into the ascii table
+            if (inputInt > 63) {
+                int modOffset = inputInt % 64;
+                modSteps = (inputInt - modOffset) / 64;
+                for (int i = 0; i < modSteps; i++) {
+                    extendString += "+";
+                }
+            }
+
+            return extendString + IntToAscii(inputInt - (modSteps * 64) + asciiOffset).ToString();
+        }
+
+        public static int Asc64ToDec(string inputString) { //Convert compressed ascii to decimal
+            char tempChar = inputString[0];
+            int asciiOffset = 0;
+            int modSteps = 0;
+
+            while (tempChar == '+') {
+                modSteps++;
+                tempChar = inputString[modSteps];
+            }
+            
+            int tempInt = AsciiToInt(tempChar);
+
+            if (tempInt <= 57) { asciiOffset = 48; } //0-9, 48-57
+            else if (tempInt >= 63 && tempInt <= 90) { asciiOffset = 53; } //?@A-Z, 63-90
+            else if (tempInt >= 97) { asciiOffset = 59; } //a-z, 97-122
+
+            return tempInt - (asciiOffset - (modSteps * 64));
         }
 
         public static int AsciiToInt(char ch) {

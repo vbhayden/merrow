@@ -287,7 +287,7 @@ namespace Merrow {
                     if (newitemspells[i] > 45) { currelement = 3; } //wind
 
                     //string is written
-                    hintstring = library.newSpellItemName[(i * 4) + currelement];
+                    hintstring = library.newSpellItemName[i, currelement];
 
                     hintdata = TranslateString(hintstring);
 
@@ -301,7 +301,7 @@ namespace Merrow {
                     patchstrings.Add((string)hintdata[0]);
 
                     //update capitalcase item list for hints and gifters
-                    library.itemcapitalcase[i + 8] = library.newSpellItemCapCase[(i * 4) + currelement];
+                    library.itemcapitalcase[i + 8] = library.newSpellItemCapCase[i, currelement];
                 }
 
                 //Replacement spell item descriptions
@@ -1843,6 +1843,27 @@ namespace Merrow {
             return bintohex.ToString("X8"); //return int as 8char hex string
         }
 
+        //turn target item list into bin string of IDs
+        public string itemListSkimBin(ListView listID) {
+            string binencode = "";
+
+            //write bools as binary string
+            for (int i = 0; i < listID.Items.Count; i++) {
+                ListViewItem listChestItem = listID.Items[i];
+                //Console.WriteLine(listID.Name + " " + i.ToString());
+                if (listChestItem != null) {
+                    if (!listChestItem.Checked) { binencode += "0"; }
+                    if (listChestItem.Checked) { binencode += "1"; }
+                }
+                else { binencode += "0"; }
+            }
+
+            while (binencode.Length < 30) { binencode += "0"; }
+
+            Console.WriteLine("encode: " + binencode);
+            return binencode;
+        }
+
         //take skimmed hex string and unpack into item list
         public void itemListUnpack(ListView listID, string hexdecode) {
             bool[] unpacks = new bool[listID.Items.Count];
@@ -1858,6 +1879,19 @@ namespace Merrow {
                 if (inttobin[i] == '1') { listChestItem.Checked = true; }
                 if (inttobin[i] == '0') { listChestItem.Checked = false; }
             }
+        }
+
+        //take skimmed bin string and unpack into item list
+        public void itemListUnpackBin(ListView listID, string bindecode) {
+            //interpret binary string as a series of bools
+            for (int i = 0; i < listID.Items.Count; i++)
+            {
+                ListViewItem listChestItem = listID.Items[i];
+                if (bindecode[i] == '1') { listChestItem.Checked = true; }
+                if (bindecode[i] == '0') { listChestItem.Checked = false; }
+            }
+
+            Console.WriteLine("decode: " + bindecode);
         }
     }
 }
