@@ -149,7 +149,11 @@ However, exports will automatically overwrite any existing file with the same na
 It will also create a 'filename + Spoiler.txt' file in the same directory that lists patch contents, seed, and other information.</value>
   </data>
   <data name="newLabel.Text" xml:space="preserve">
-    <value>● New Shortcut buttons below, one click to enable rulesets and skip right to Export!
+    <value>● V50b hotfix: Shortened shortcodes further and fixed them not properly saving custom item lists.
+● V50a hotfix: Added an option to lock the weird door in Mammon's World that sends you backward.
+● V50a hotfix: Fixed Mending Lv1 only being usable in battle.
+
+● New Shortcut buttons below, one click to enable rulesets and skip right to Export!
 ● Shuffling enemy group compositions, thanks to Schooliedee. Still in testing, please report any issues.
 ● Beigis has been re-added to Boss Shuffle, thanks to decomp progress and Schooliedee. 
 ● Nepty's Bubble has been added to the spell list, replacing Soul Search 1, thanks to Landmine.
@@ -157,12 +161,8 @@ It will also create a 'filename + Spoiler.txt' file in the same directory that l
 ● Checksum repair now works without the DLL, thanks to Schooliedee.
 ● New shorter shortcodes! Likely to get even shorter.
 ● Twice as many prefixes and suffixes for Shuffled Spells, new ones for Extra Healing and other spells.
-● Added an option to lock the weird door in Mammon's World that sends you backward.
-● Fixed Mending Lv1 only being usable in battle.
-● Fixed Walking MP Regen: the array values were backwards, 1/3x was 3x, 1/2x was 2x, and vice versa.
-● Fixed a visual bug in Merrow where certain values didn't seem to be updated by shortcodes, even if they were.
 ● Replacement spell names now properly appear in the spoiler log.
-● Fixed dozens of minor bugs.</value>
+● Fixed dozens of minor bugs, including inverted  MP Regen values and shortcodes not updating in Merrow.</value>
   </data>
   <data name="creditsLinkLabel.Text" xml:space="preserve">
     <value>Developed by:  Hangedman (Jonah Davidson), with major contributions from Schooliedee and Landmine36.
@@ -251,7 +251,7 @@ CUSTOM: Drops are randomized as selected below.</value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADw
-        JQAAAk1TRnQBSQFMAgEBIAEAASABBQEgAQUBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        JQAAAk1TRnQBSQFMAgEBIAEAASgBBQEoAQUBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAAZADAAEBAQABCAYAASQYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
