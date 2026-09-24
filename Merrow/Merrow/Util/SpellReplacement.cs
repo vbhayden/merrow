@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -21,7 +22,7 @@ namespace Merrow.Util
         None = 0,
         Recommended = 1,
         ReplaceSimilar = 2,
-        Custom = 3,
+        BubbleOnly = 3,
     }
 
     public struct SpellReplacementEntry
@@ -215,19 +216,19 @@ namespace Merrow.Util
             {
                 default:
                 case SpellReplacementLogic.RandomSpell:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.AllBaseSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(spellBeingAdded, avilableReplacements, SpellDefinitions.AllBaseSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomDamageSpell:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.OffenseSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(spellBeingAdded, avilableReplacements, SpellDefinitions.OffenseSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomStatusSpell:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.StatusSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(spellBeingAdded, avilableReplacements, SpellDefinitions.StatusSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomBuff:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.BuffSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(spellBeingAdded, avilableReplacements, SpellDefinitions.BuffSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.RandomDebuff:
-                    return this.InternalTryGetReplacementSpell(avilableReplacements, SpellDefinitions.DebuffSpells, out chosenReplacement);
+                    return this.InternalTryGetReplacementSpell(spellBeingAdded, avilableReplacements, SpellDefinitions.DebuffSpells, out chosenReplacement);
 
                 case SpellReplacementLogic.SpecificSpell:
                     return this.TryGetExplicitPairing(spellBeingAdded, avilableReplacements, out chosenReplacement);
@@ -247,15 +248,22 @@ namespace Merrow.Util
         }
 
         private List<SpellNameEnum> randomCache = new List<SpellNameEnum>();
-        private bool InternalTryGetReplacementSpell(List<SpellNameEnum> availableReplacements, SpellNameEnum[] selectionPool, out SpellNameEnum chosenReplacement, bool isFallback = false)
+        private bool InternalTryGetReplacementSpell(SpellNameEnum spellBeingAdded, List<SpellNameEnum> availableReplacements, SpellNameEnum[] selectionPool, out SpellNameEnum chosenReplacement, bool isFallback = false)
         {
             this.randomCache.Clear();
             this.randomCache.AddRange(selectionPool);
             this.randomCache.Shuffle();
 
+            var forbiddenReplacements = ReplacementOperations.ForbiddenReplacements;
+
             for (int k = 0; k < this.randomCache.Count; k++)
             {
                 var possibleReplacement = this.randomCache[k];
+
+                var hasExclusions = forbiddenReplacements.ContainsKey(spellBeingAdded);
+                if (hasExclusions && forbiddenReplacements[spellBeingAdded].Contains(possibleReplacement))
+                    continue;
+
                 var isAvailable = availableReplacements.Contains(possibleReplacement);
                 if (isAvailable)
                 {
@@ -268,7 +276,7 @@ namespace Merrow.Util
 
             if (isFallback == false)
             {
-                return this.InternalTryGetReplacementSpell(availableReplacements, SpellDefinitions.OffenseSpells, out chosenReplacement, isFallback: true);
+                return this.InternalTryGetReplacementSpell(spellBeingAdded, availableReplacements, SpellDefinitions.OffenseSpells, out chosenReplacement, isFallback: true);
             }
 
             chosenReplacement = default;
@@ -322,8 +330,8 @@ namespace Merrow.Util
                     this.ApplyReplaceSimilarPreset();
                     break;
 
-                case SpellReplacementPreset.Custom:
-                    this.ApplyCustomPreset();
+                case SpellReplacementPreset.BubbleOnly:
+                    this.ApplyBubbleOnlyPreset();
                     break;
             }
 
@@ -332,20 +340,31 @@ namespace Merrow.Util
             Console.WriteLine($"Applied Replacement Preset: {replacementPreset}");
         }
 
-        private void ApplyCustomPreset()
-        {
 
+        private void ApplyBubbleOnlyPreset()
+        {
+            this.InternalApplyPresetEntries(this.bubbleOnlyReplacements);
         }
 
         private void ApplyRecommendedPreset()
+        {
+            this.InternalApplyPresetEntries(this.recommendedReplacements);
+        }
+
+        private void ApplyReplaceSimilarPreset()
+        {
+            this.InternalApplyPresetEntries(this.similarSpellReplacements);
+        }
+
+        private void InternalApplyPresetEntries(List<SpellReplacementEntry> entries)
         {
             this.explicitReplacementMapping.Clear();
             this.logicMapping.Clear();
             this.enabledMapping.Clear();
 
-            for (int k=0; k<this.recommendedReplacements.Count; k++)
+            for (int k = 0; k < entries.Count; k++)
             {
-                var recommendedEntry = this.recommendedReplacements[k];
+                var recommendedEntry = entries[k];
 
                 var logic = recommendedEntry.logic;
                 var spellToAdd = recommendedEntry.spellBeingAdded;
@@ -362,31 +381,11 @@ namespace Merrow.Util
             }
         }
 
-        private void ApplyReplaceSimilarPreset()
-        {
-            this.explicitReplacementMapping.Clear();
-            this.logicMapping.Clear();
-            this.enabledMapping.Clear();
-
-            foreach (var similarPairing in this.similarSpellReplacements)
-            {
-                var spellToAdd = similarPairing.Key;
-                var spellToReplace = similarPairing.Value;
-
-                this.logicMapping.Add(spellToAdd, SpellReplacementLogic.SpecificSpell);
-                this.explicitReplacementMapping.Add(spellToAdd, spellToReplace);
-
-                this.enabledMapping.Add(spellToAdd, true);
-            }
-        }
-
         private void ApplyNotUsedPreset()
         {
             this.explicitReplacementMapping.Clear();
             this.logicMapping.Clear();
             this.enabledMapping.Clear();
-            
-
         }
 
         private readonly List<SpellReplacementEntry> recommendedReplacements = new List<SpellReplacementEntry>
@@ -405,17 +404,22 @@ namespace Merrow.Util
             new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.MammonFireArrows, logic = SpellReplacementLogic.RandomSpell },
         };
 
-        private readonly Dictionary<SpellNameEnum, SpellNameEnum> similarSpellReplacements = new Dictionary<SpellNameEnum, SpellNameEnum>
+        private readonly List<SpellReplacementEntry> similarSpellReplacements = new List<SpellReplacementEntry>
         {
-            { SpellNameEnum.ZelseWindRazor, SpellNameEnum.HomingArrowLv1 },
-            { SpellNameEnum.ZelseWindZipper, SpellNameEnum.RollingRockLv1 },
-            { SpellNameEnum.NeptyBubbleShot, SpellNameEnum.SoulSearcherLv1 },
-            { SpellNameEnum.ShilfDoveRazor, SpellNameEnum.WindCutterLv2 },
-            { SpellNameEnum.FargoLavaBall, SpellNameEnum.FireBallLv1 },
-            { SpellNameEnum.FargoExplosion, SpellNameEnum.FireBomb },
-            { SpellNameEnum.BeigisSpiritSword, SpellNameEnum.Cyclone},
-            { SpellNameEnum.MammonFlameWaves, SpellNameEnum.MagmaBall},
-            { SpellNameEnum.MammonFireArrows, SpellNameEnum.HomingArrowLv2 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.ZelseWindRazor, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.HomingArrowLv1 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.ZelseWindZipper, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.RollingRockLv1 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.NeptyBubbleShot, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.SoulSearcherLv1 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.ShilfDoveRazor, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.WindCutterLv2 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.FargoLavaBall, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.FireBallLv1 },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.FargoExplosion, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.FireBomb},
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.BeigisSpiritSword, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.Cyclone },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.MammonFlameWaves, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.MagmaBall },
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.MammonFireArrows, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.HomingArrowLv1 },
+        };
+
+        private readonly List<SpellReplacementEntry> bubbleOnlyReplacements = new List<SpellReplacementEntry>
+        {
+            new SpellReplacementEntry{ spellBeingAdded = SpellNameEnum.NeptyBubbleShot, logic = SpellReplacementLogic.SpecificSpell, spellBeingReplaced = SpellNameEnum.SoulSearcherLv1 },
         };
     }
 
@@ -504,6 +508,11 @@ namespace Merrow.Util
                 patchContents = replacementAnim.AnimationData
             };
         }
+
+        public static readonly Dictionary<SpellNameEnum, SpellNameEnum[]> ForbiddenReplacements = new Dictionary<SpellNameEnum, SpellNameEnum[]>
+        {
+            { SpellNameEnum.MammonFlameWaves, new SpellNameEnum[] { SpellNameEnum.RockShower, SpellNameEnum.MagnetRock } },
+        };
     }
 }
 

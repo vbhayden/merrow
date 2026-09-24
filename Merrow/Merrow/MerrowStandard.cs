@@ -2063,7 +2063,7 @@ namespace Merrow {
             if (e == EventArgs.Empty)
                 return;
 
-            this.OnPresetSelected(this.buttonBossSpellPresetCustom, SpellReplacementPreset.Custom);
+            this.OnPresetSelected(this.buttonBossSpellPresetCustom, SpellReplacementPreset.BubbleOnly);
         }
 
 

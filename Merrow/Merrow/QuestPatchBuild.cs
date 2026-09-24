@@ -374,10 +374,23 @@ namespace Merrow {
                 }
 
                 //Replacement spell item descriptions
-                if (!rndExtraHealingToggle.Checked) { library.newSpellItemDesc[19] = library.specialSpellItemDesc[0]; }
-                else { library.newSpellItemDesc[19] = library.specialSpellItemDesc[1]; }
-                if (!rndBubbleToggle.Checked) { library.newSpellItemDesc[33] = library.specialSpellItemDesc[2]; }
-                else { library.newSpellItemDesc[33] = library.specialSpellItemDesc[3]; }
+                if (!rndExtraHealingToggle.Checked) 
+                { 
+                    library.newSpellItemDesc[19] = library.specialSpellItemDesc[0]; 
+                }
+                else 
+                { 
+                    library.newSpellItemDesc[19] = library.specialSpellItemDesc[1]; 
+                }
+                
+                if (!rndBubbleToggle.Checked) 
+                { 
+                    library.newSpellItemDesc[33] = library.specialSpellItemDesc[2];
+                }
+                else 
+                { 
+                    library.newSpellItemDesc[33] = library.specialSpellItemDesc[3]; 
+                }
 
                 //Updated spell item descriptions
                 for (int i = 0; i < 6; i++) {

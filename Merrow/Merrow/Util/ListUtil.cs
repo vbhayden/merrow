@@ -21,7 +21,7 @@ namespace Merrow.Util
                 list[n] = value;
             }
         }
-
+        
 
         public static SpellData GetSpell(this IList<SpellData> definitions, SpellNameEnum nameEnum)
         {
